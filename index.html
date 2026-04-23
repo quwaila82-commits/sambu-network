@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1A3C34">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<link rel="manifest" href="/manifest.json">
+<title>삼부 영업네트워크</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+::-webkit-scrollbar{display:none}
+body{background:#E8F5F0;font-family:'Pretendard','Noto Sans KR',sans-serif;-webkit-font-smoothing:antialiased;color:#1A3C34}
+#app{max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:20px}
+.card{background:#fff;border:1px solid #C8E6DC;border-radius:14px;margin:0 16px 12px;overflow:hidden}
+.row{display:flex;align-items:center;padding:10px 12px;gap:10px;border-bottom:1px solid #C8E6DC}
+.row:last-child{border-bottom:none}
+.inp{width:100%;padding:9px 12px;border-radius:10px;border:1px solid #C8E6DC;background:#F0FAF6;color:#1A3C34;font-size:13px;font-family:inherit;box-sizing:border-box}
+.ta{width:100%;min-height:50px;padding:12px;border-radius:10px;border:1px solid #C8E6DC;background:#F0FAF6;color:#1A3C34;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:flex-end;justify-content:center;z-index:1000}
+.msh{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:85vh;overflow:auto;animation:su .25s ease}
+.mhd{width:36px;height:4px;border-radius:2px;background:#C8E6DC;margin:8px auto 0}
+.mbd{padding:14px 20px 28px}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var TAGS={call:{l:"전화",ic:"📞"},tea:{l:"티타임",ic:"☕"},lunch:{l:"식사",ic:"🍱"},dinner:{l:"저녁/술",ic:"🍷"},etc:{l:"기타",ic:"📌"}};
+var TAGKEYS=["call","tea","lunch","dinner","etc"];
+var CYCLE={3:28,2:42,1:56};
+var RETRY=14;
+var SD={3:"핵심 4주",2:"중요 6주",1:"관리 8주"};
+var CT=[{k:"gov_local",l:"지자체",g:"관"},{k:"gov_central",l:"정부부처",g:"관"},{k:"gov_agency",l:"산하기관",g:"관"},{k:"politics",l:"정치권",g:"관"},{k:"big_const",l:"건설사",g:"민"},{k:"big_other",l:"비건설사",g:"민"},{k:"client",l:"건축주",g:"기타"}];
+var GL=3000;
+var IP=[{id:1,name:"서남권 풍력발전 800MW",client:"전북도청",timing:"진행중",memo:""},{id:2,name:"신안 비금~암태 도로개설(5000억)",client:"익산청",timing:"기본설계",memo:"기본설계 기술제안"},{id:3,name:"부산진해신항 준설(3180억)",client:"부건소",timing:"26.12",memo:"대안, 대우/동부/한라"},{id:4,name:"부산진해신항 서컨부두(3328억)",client:"BPA",timing:"26.하",memo:"대안, 현대/대우"},{id:5,name:"고양차량기지 증설(4400억)",client:"철도공단",timing:"26.6",memo:"턴키, DL"},{id:6,name:"CTX 개발(민자사업)",client:"철도공단",timing:"26.9",memo:"DL"},{id:7,name:"용인반도체 국가산단 2공구(8200억)",client:"LH",timing:"26.06",memo:"CMR, 롯데 vs 대보"}];
+var IO=[{id:101,name:"전라유학진흥원 건립사업",client:"전라북도",type:"건축",amt:55,status:"confirmed"},{id:102,name:"임실군 농업기술센터",client:"전라북도 임실군",type:"건축",amt:64,status:"confirmed"},{id:103,name:"임실 섬진강자연학습장",client:"전라북도임실교육지원청",type:"건축",amt:20,status:"confirmed"},{id:104,name:"새만금~전주간 조경(2공구)",client:"한국도로공사",type:"조경",amt:46,status:"confirmed"},{id:105,name:"삼천포 하수도정비 침수대응",client:"경남지방조달청",type:"토목",amt:94,status:"confirmed"},{id:106,name:"수서~광주 복선전철 2공구",client:"국가철도공단",type:"토목",amt:252,status:"confirmed"},{id:107,name:"광주송정~순천 철도 1공구",client:"국가철도공단",type:"토목",amt:169,status:"confirmed"},{id:108,name:"새만금 연결도로(1공구)",client:"새만금개발청",type:"토목",amt:100,status:"confirmed"},{id:109,name:"전주보름특수학교 신축",client:"전북특별자치도교육청",type:"건축",amt:108,status:"confirmed"},{id:110,name:"가덕도 신공항 접근철도 2공구",client:"국가철도공단",type:"토목",amt:199,status:"confirmed"},{id:111,name:"새만금 스마트수변도시 2공구",client:"새만금개발공사",type:"토목",amt:178,status:"confirmed"},{id:112,name:"국립군산대 공대 리모델링",client:"국립군산대학교",type:"건축",amt:49,status:"confirmed"},{id:113,name:"동원탄좌 폐경석 사면보강",client:"강원랜드",type:"토건",amt:116,status:"confirmed"},{id:114,name:"전주컨벤션 센터 건립",client:"전주시",type:"건축",amt:170,status:"confirmed"},{id:115,name:"순창군 농어촌생활용수 개발",client:"순창군",type:"토목",amt:74,status:"confirmed"},{id:116,name:"새만금 농업용수 공급(2공구)",client:"농어촌공사",type:"토목",amt:110,status:"confirmed"},{id:201,name:"남부내륙철도 9공구",client:"국가철도공단",type:"토목",amt:350,status:"pending"},{id:202,name:"고양차량기지 증설사업",client:"국가철도공단",type:"토목",amt:220,status:"pending"},{id:203,name:"하수처리수 재이용사업",client:"코웨이엔텍",type:"토목",amt:120,status:"pending"},{id:204,name:"전주병원 증축공사",client:"전주병원",type:"건축",amt:200,status:"pending"},{id:205,name:"전주 광역권 소각장",client:"전주시",type:"토목",amt:200,status:"pending"},{id:206,name:"진해신항 준설공사",client:"해수부",type:"토목",amt:150,status:"pending"},{id:207,name:"대한방직 공공기여분",client:"전주시",type:"토목",amt:150,status:"pending"}];
+var IC=[{id:1,n:"설상일",r:"5급 팀장",o:"전북도청",d:"도의회",cat:"gov_local",s:3},{id:2,n:"김용성",r:"5급 팀장",o:"전북도청",d:"기후변화대응팀장",cat:"gov_local",s:2},{id:3,n:"신동호",r:"5급 팀장",o:"전북도청",d:"공무원 노사팀장",cat:"gov_local",s:1},{id:4,n:"김용준",r:"5급 팀장",o:"전북도청",d:"기후위기대응 홍보팀장",cat:"gov_local",s:1},{id:5,n:"조선화",r:"5급 팀장",o:"전북도청",d:"생태자원팀장",cat:"gov_local",s:1},{id:6,n:"임정빈",r:"5급 과장",o:"전주시청",d:"광역도시기반조성",cat:"gov_local",s:3},{id:7,n:"유인환",r:"5급 과장",o:"전주시청",d:"하천과",cat:"gov_local",s:2},{id:8,n:"이상복",r:"5급 과장",o:"전주시청",d:"도시개발과",cat:"gov_local",s:2},{id:9,n:"임상빈",r:"6급 팀장",o:"전주시청",d:"개발사업팀",cat:"gov_local",s:2},{id:10,n:"류성훈",r:"6급 팀장",o:"전주시청",d:"재개발건축팀",cat:"gov_local",s:2},{id:11,n:"한민희",r:"정무보좌관",o:"전주시청",d:"",cat:"gov_local",s:1},{id:12,n:"채범수",r:"5급 과장",o:"완주군",d:"군의회, 건축",cat:"gov_local",s:2},{id:13,n:"김광준",r:"6급 팀장",o:"완주군",d:"하천기반과",cat:"gov_local",s:1},{id:14,n:"박준건",r:"6급 팀장",o:"완주군",d:"용진읍 부읍장",cat:"gov_local",s:1},{id:15,n:"정효곤",r:"4급 국장",o:"김제시",d:"도시건설국장",cat:"gov_local",s:1},{id:16,n:"박명주",r:"3급 과장",o:"국토부",d:"수도권 정책과",cat:"gov_central",s:1},{id:17,n:"박유서",r:"5급",o:"국토부",d:"남원도로관리사무소",cat:"gov_central",s:2},{id:18,n:"송명근",r:"5급",o:"국토부",d:"익산청 도로공사과",cat:"gov_central",s:2},{id:19,n:"장기욱",r:"국장",o:"해수부",d:"부산항건설사무소장",cat:"gov_central",s:1},{id:20,n:"김용수",r:"사무관",o:"해수부",d:"6월 본청 복귀",cat:"gov_central",s:2},{id:21,n:"박형배",r:"1급",o:"행안부",d:"안전예방정책실장",cat:"gov_central",s:1},{id:22,n:"서윤식",r:"부장",o:"국가철도공단",d:"총사업비 담당",cat:"gov_agency",s:3},{id:23,n:"김정석",r:"부장",o:"국가철도공단",d:"이천문경사업단 TF단장",cat:"gov_agency",s:2},{id:24,n:"김창영",r:"처장",o:"국가철도공단",d:"GTX 추진단",cat:"gov_agency",s:3},{id:25,n:"선기운",r:"본부장(이사)",o:"새만금개발공사",d:"개발본부장",cat:"gov_agency",s:3},{id:26,n:"권영호",r:"",o:"새만금개발청",d:"전 비서실장",cat:"gov_agency",s:2},{id:27,n:"김대근",r:"사장",o:"전북개발공사",d:"전 현대건설 상무",cat:"gov_agency",s:1},{id:28,n:"송재철",r:"본부장",o:"전북개발공사",d:"개발사업 총괄",cat:"gov_agency",s:1},{id:29,n:"정경훈",r:"사장",o:"GTX A",d:"전 국토부 기조실장",cat:"gov_agency",s:2},{id:30,n:"김상도",r:"고문",o:"GTX A",d:"전 항공정책국장",cat:"gov_agency",s:2},{id:31,n:"방근배",r:"감사실장",o:"한국탄소산업진흥원",d:"",cat:"gov_agency",s:1},{id:32,n:"조경민",r:"비상임이사",o:"LH",d:"감사, 회계사",cat:"gov_agency",s:2},{id:33,n:"김윤덕",r:"국토부장관",o:"정치권",d:"전주갑",cat:"politics",s:1},{id:34,n:"안호영",r:"의원",o:"정치권",d:"완주 진안 무주",cat:"politics",s:1},{id:35,n:"이명연",r:"부의장",o:"정치권",d:"전북도의회",cat:"politics",s:1},{id:36,n:"이원택",r:"의원",o:"정치권",d:"김제,부안",cat:"politics",s:1},{id:37,n:"김동환",r:"보좌관",o:"정치권",d:"국토부장관",cat:"politics",s:3},{id:38,n:"조중덕",r:"보좌관",o:"정치권",d:"조지훈 의원",cat:"politics",s:1},{id:39,n:"이해규",r:"보좌관",o:"정치권",d:"이원택 의원",cat:"politics",s:2},{id:40,n:"이장훈",r:"상무",o:"현대건설",d:"커뮤니케이션실",cat:"big_const",s:2},{id:41,n:"서경덕",r:"팀장",o:"현대건설",d:"커뮤니케이션실",cat:"big_const",s:1},{id:42,n:"임경묵",r:"책임(팀장)",o:"현대건설",d:"LH, 국토부",cat:"big_const",s:2},{id:43,n:"최중관",r:"팀장",o:"한화건설",d:"공공영업",cat:"big_const",s:2},{id:44,n:"한혁열",r:"차장",o:"한화건설",d:"공공영업",cat:"big_const",s:1},{id:45,n:"김학진",r:"차장",o:"한화건설",d:"공공영업",cat:"big_const",s:1},{id:46,n:"송준호",r:"본부장(상무)",o:"쌍용건설",d:"토목총괄",cat:"big_const",s:2},{id:47,n:"전기종",r:"팀장",o:"쌍용건설",d:"토목영업",cat:"big_const",s:1},{id:48,n:"박현철",r:"차장",o:"쌍용건설",d:"토목영업",cat:"big_const",s:2},{id:49,n:"정주현",r:"차장",o:"쌍용건설",d:"토목영업",cat:"big_const",s:1},{id:50,n:"장윤성",r:"차장",o:"쌍용건설",d:"토목영업",cat:"big_const",s:1},{id:51,n:"박규수",r:"본부장(전무)",o:"KCC건설",d:"인프라사업 총괄",cat:"big_const",s:2},{id:52,n:"정병용",r:"상무",o:"대보건설",d:"공공영업",cat:"big_const",s:3},{id:53,n:"이길수",r:"차장",o:"대보건설",d:"",cat:"big_const",s:1},{id:54,n:"양승범",r:"상무",o:"동부건설",d:"국토부,해수부",cat:"big_const",s:2},{id:55,n:"장지영",r:"본부장(전무)",o:"롯데건설",d:"토목본부",cat:"big_const",s:1},{id:56,n:"이상한",r:"상무",o:"롯데건설",d:"토목본부",cat:"big_const",s:1},{id:57,n:"윤정기",r:"팀장",o:"롯데건설",d:"토목 기술영업",cat:"big_const",s:2},{id:58,n:"김정락",r:"수석",o:"롯데건설",d:"건축 입찰파트장",cat:"big_const",s:2},{id:59,n:"박창길",r:"상무",o:"계룡건설",d:"철도공단, 국토부",cat:"big_const",s:1},{id:60,n:"이희석",r:"부장",o:"계룡건설",d:"종심제 컨소시엄",cat:"big_const",s:1},{id:61,n:"이호비",r:"팀장",o:"롯데쇼핑",d:"개발2팀",cat:"big_other",s:2},{id:62,n:"최정웅",r:"이사장",o:"전주병원",d:"",cat:"client",s:1},{id:63,n:"정희석",r:"비서실장",o:"우석대 재단",d:"",cat:"client",s:1}];
+
+var NW=new Date();NW.setHours(0,0,0,0);
+var S={tab:"home",sel:null,sf:3,sr:"",c:[],l:[],p:[],o:[]};
+function ld(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+S.c=ld("s10c",IC);S.l=ld("s10l",[]);S.p=ld("s10p",IP);S.o=ld("s10o",IO);
+function _dd(a,b){return Math.round((b-a)/864e5);}
+function td(){return new Date().toISOString().split("T")[0];}
+function es(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML;}
+
+function dday(c){
+  var my=S.l.filter(function(l){return l.cid===c.id;}).sort(function(a,b){return new Date(b.dt)-new Date(a.dt);});
+  if(!my.length)return{remain:null,level:"none"};
+  var last=my[0],ds=_dd(new Date(last.dt),NW);
+  var cycle=last.rappo?CYCLE[c.s]:RETRY;
+  var rem=cycle-ds;
+  var level=rem<0?"red":rem<=3?"yellow":"green";
+  return{remain:rem,daysSince:ds,lastTag:last.tag,lastRappo:last.rappo,cycle:cycle,level:level};
+}
+function lcol(lv){return lv==="green"?"#2AA876":lv==="yellow"?"#E8963F":lv==="red"?"#E25555":"#B8CFC7";}
+function scol(s){return s===3?"#EF4444":s===2?"#F59E0B":"#9CA3AF";}
+
+var $=document.getElementById("app");
+function R(){if(S.tab==="home")RH();else RD();}
+
+// ── Helpers for onclick bindings ──
+function selTag(tk){window._ctag=tk;var bs=document.querySelectorAll("[data-tg]");for(var i=0;i<bs.length;i++){var b=bs[i];b.style.border="1px solid #C8E6DC";b.style.background="#F0FAF6";b.style.color="#85ADA2";}var el=document.querySelector("[data-tg='"+tk+"']");if(el){el.style.border="2px solid #1A3C34";el.style.background="#1A3C3410";el.style.color="#1A3C34";}}
+function selDt(dt){document.getElementById("ld").value=dt;var bs=document.querySelectorAll("[data-dt]");for(var i=0;i<bs.length;i++){bs[i].style.border="1px solid #C8E6DC";bs[i].style.background="transparent";bs[i].style.color="#85ADA2";}var el=document.querySelector("[data-dt='"+dt+"']");if(el){el.style.border="1px solid #1A3C34";el.style.background="#1A3C34";el.style.color="#fff";}}
+function selSt(st){window._os=st;var bs=document.querySelectorAll("[data-st]");for(var i=0;i<bs.length;i++){bs[i].style.border="1px solid #C8E6DC";bs[i].style.color="#85ADA2";}var el=document.querySelector("[data-st='"+st+"']");if(el){el.style.border="2px solid #1A3C34";el.style.color="#1A3C34";}}
+function selStar(v){window._as=v;var bs=document.querySelectorAll("[data-star]");for(var i=0;i<bs.length;i++){bs[i].style.borderColor="#C8E6DC";}var el=document.querySelector("[data-star='"+v+"']");if(el){el.style.borderColor="#1A3C34";}}
+
+// ── MODALS ──
+function sm(b){var m=document.createElement("div");m.className="mbg";m.id="md";m.onclick=function(e){if(e.target===m)cm();};m.innerHTML='<div class="msh"><div class="mhd"></div><div class="mbd">'+b+'</div></div>';document.body.appendChild(m);}
+function cm(){var m=document.getElementById("md");if(m)m.remove();}
+
+// ── CHECK MODAL ──
+function oChk(cid){
+  var c=S.c.find(function(x){return x.id===cid;});if(!c)return;
+  var h='<h3 style="font-size:17px;font-weight:800;margin:0 0 16px">'+es(c.n)+' 접촉 체크</h3>';
+  h+='<div style="font-size:12px;font-weight:600;color:#4A7C6F;margin-bottom:6px">접촉 유형 (기록용)</div>';
+  h+='<div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap">';
+  for(var i=0;i<TAGKEYS.length;i++){var tk=TAGKEYS[i];var tg=TAGS[tk];var sel=i===0;
+    h+='<button data-tg="'+tk+'" onclick="selTag(\''+tk+'\')" style="flex:1;min-width:55px;padding:8px 4px;border-radius:10px;border:'+(sel?"2px solid #1A3C34":"1px solid #C8E6DC")+';background:'+(sel?"#1A3C3410":"#F0FAF6")+';color:'+(sel?"#1A3C34":"#85ADA2")+';font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;text-align:center">'+tg.ic+' '+tg.l+'</button>';}
+  h+='</div>';
+  h+='<div style="margin-bottom:12px"><label style="font-size:12px;font-weight:600;color:#4A7C6F;display:block;margin-bottom:4px">날짜</label>';
+  h+='<input type="date" class="inp" id="ld" value="'+td()+'">';
+  h+='<div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap">';
+  var presets=[{l:"오늘",d:0},{l:"어제",d:1},{l:"1주전",d:7},{l:"2주전",d:14},{l:"1달전",d:30}];
+  for(var i=0;i<presets.length;i++){var q=presets[i];var dt=new Date(NW.getTime()-q.d*864e5).toISOString().split("T")[0];var on=dt===td();
+    h+='<button data-dt="'+dt+'" onclick="selDt(\''+dt+'\')" style="padding:5px 11px;border-radius:8px;border:1px solid '+(on?"#1A3C34":"#C8E6DC")+';background:'+(on?"#1A3C34":"transparent")+';color:'+(on?"#fff":"#85ADA2")+';font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">'+q.l+'</button>';}
+  h+='</div></div>';
+  h+='<div style="margin-bottom:20px"><label style="font-size:12px;font-weight:600;color:#4A7C6F;display:block;margin-bottom:4px">메모</label><textarea class="ta" id="lm" placeholder="메모 (선택)"></textarea></div>';
+  h+='<div style="font-size:13px;font-weight:700;margin-bottom:10px">라포 판단</div>';
+  h+='<div style="display:flex;gap:10px">';
+  h+='<button onclick="sChk('+cid+',true)" style="flex:1;padding:16px 10px;border-radius:14px;background:#2AA87615;border:2px solid #2AA876;cursor:pointer;text-align:center"><div style="font-size:24px;margin-bottom:4px">✅</div><div style="font-size:14px;font-weight:800;color:#2AA876">라포 유지</div><div style="font-size:11px;color:#85ADA2;margin-top:4px">'+CYCLE[c.s]+'일 후 연락</div></button>';
+  h+='<button onclick="sChk('+cid+',false)" style="flex:1;padding:16px 10px;border-radius:14px;background:#E8963F10;border:2px solid #E8963F;cursor:pointer;text-align:center"><div style="font-size:24px;margin-bottom:4px">⚠️</div><div style="font-size:14px;font-weight:800;color:#E8963F">아쉬움</div><div style="font-size:11px;color:#85ADA2;margin-top:4px">2주 후 재연락</div></button>';
+  h+='</div>';
+  window._ctag="call";sm(h);
+}
+function sChk(cid,rappo){S.l.push({id:Date.now(),cid:cid,tag:window._ctag||"call",dt:document.getElementById("ld").value,memo:document.getElementById("lm").value,rappo:rappo});sv("s10l",S.l);cm();R();}
+function dL(lid){S.l=S.l.filter(function(l){return l.id!==lid;});sv("s10l",S.l);R();}
+function oD(cid){S.sel=S.c.find(function(c){return c.id===cid;})||null;S.tab="detail";R();}
+function uS(v){if(!S.sel)return;S.sel.s=v;S.c=S.c.map(function(c){return c.id===S.sel.id?S.sel:c;});sv("s10c",S.c);R();}
+function tE(){var ea=document.getElementById("ea");if(!ea)return;if(ea.innerHTML){ea.innerHTML="";return;}var c=S.sel;
+  var h='<div style="margin-top:8px;background:#fff;border-radius:12px;border:1px solid #C8E6DC;padding:14px;display:grid;gap:8px">';
+  var fs=[["이름","n"],["직급","r"],["기관","o"],["부서","d"]];
+  for(var i=0;i<fs.length;i++){h+='<div><label style="font-size:10px;color:#85ADA2">'+fs[i][0]+'</label><input class="inp" id="e_'+fs[i][1]+'" value="'+es(c[fs[i][1]]||"")+'"></div>';}
+  h+='<div><label style="font-size:10px;color:#85ADA2">카테고리</label><select class="inp" id="e_cat">';
+  for(var i=0;i<CT.length;i++){h+='<option value="'+CT[i].k+'"'+(c.cat===CT[i].k?' selected':'')+'>'+CT[i].g+' '+CT[i].l+'</option>';}
+  h+='</select></div>';
+  h+='<button onclick="sE()" style="padding:10px;border-radius:10px;background:#1A3C34;color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer">저장</button>';
+  h+='<button onclick="dC()" style="padding:10px;border-radius:10px;background:#E2555515;color:#E25555;font-size:13px;font-weight:700;border:none;cursor:pointer">삭제</button></div>';
+  ea.innerHTML=h;}
+function sE(){var c=S.sel;c.n=document.getElementById("e_n").value;c.r=document.getElementById("e_r").value;c.o=document.getElementById("e_o").value;c.d=document.getElementById("e_d").value;c.cat=document.getElementById("e_cat").value;S.c=S.c.map(function(x){return x.id===c.id?c:x;});sv("s10c",S.c);R();}
+function dC(){if(!confirm("삭제?"))return;S.c=S.c.filter(function(c){return c.id!==S.sel.id;});S.l=S.l.filter(function(l){return l.cid!==S.sel.id;});sv("s10c",S.c);sv("s10l",S.l);S.sel=null;S.tab="home";R();}
+
+function oAC(){var h='<h3 style="font-size:17px;font-weight:800;margin:0 0 14px">인맥 추가</h3>';
+  var fs=[["이름*","an"],["직급","ar"],["기관","ao"],["부서","ad"]];
+  for(var i=0;i<fs.length;i++){h+='<div style="margin-bottom:10px"><label style="font-size:11px;color:#85ADA2;display:block;margin-bottom:3px">'+fs[i][0]+'</label><input class="inp" id="'+fs[i][1]+'"></div>';}
+  h+='<div style="margin-bottom:10px"><label style="font-size:11px;color:#85ADA2;display:block;margin-bottom:3px">카테고리</label><select class="inp" id="ac">';
+  for(var i=0;i<CT.length;i++){h+='<option value="'+CT[i].k+'">'+CT[i].g+' '+CT[i].l+'</option>';}
+  h+='</select></div>';
+  h+='<div style="margin-bottom:16px"><label style="font-size:11px;color:#85ADA2;display:block;margin-bottom:6px">중요도</label><div style="display:flex;gap:8px">';
+  var cols={1:"#9CA3AF",2:"#F59E0B",3:"#EF4444"};
+  for(var v=1;v<=3;v++){h+='<button data-star="'+v+'" onclick="selStar('+v+')" style="flex:1;padding:10px;border-radius:10px;border:1px solid #C8E6DC;background:#F0FAF6;text-align:center;cursor:pointer"><div style="font-size:14px;color:'+cols[v]+'">'+"★★★".slice(0,v)+'</div><div style="font-size:10px;color:#85ADA2;margin-top:2px">'+SD[v]+'</div></button>';}
+  h+='</div></div>';
+  h+='<button onclick="sAC()" style="width:100%;padding:14px;border-radius:14px;background:#1A3C34;color:#fff;font-size:15px;font-weight:800;border:none;cursor:pointer">추가</button>';
+  window._as=1;sm(h);}
+function sAC(){var n=document.getElementById("an").value;if(!n.trim())return;S.c.push({id:Date.now(),n:n,r:document.getElementById("ar").value,o:document.getElementById("ao").value,d:document.getElementById("ad").value,cat:document.getElementById("ac").value,s:window._as||1});sv("s10c",S.c);cm();R();}
+
+function oEP(id){var j=S.p.find(function(p){return p.id===id;});if(!j)return;
+  var h='<h3 style="font-size:17px;font-weight:800;margin:0 0 14px">프로젝트 수정</h3>';
+  var fs=[["프로젝트명","pn",j.name],["발주처","pc",j.client],["시기","pt",j.timing]];
+  for(var i=0;i<fs.length;i++){h+='<div style="margin-bottom:10px"><label style="font-size:11px;color:#85ADA2;display:block;margin-bottom:3px">'+fs[i][0]+'</label><input class="inp" id="'+fs[i][1]+'" value="'+es(fs[i][2]||"")+'"></div>';}
+  h+='<div style="margin-bottom:10px"><label style="font-size:11px;color:#85ADA2;display:block;margin-bottom:3px">주요 메모</label><textarea class="ta" id="pm" placeholder="발주방식, 경쟁사...">'+es(j.memo||"")+'</textarea></div>';
+  h+='<div style="display:flex;gap:8px;margin-top:8px"><button onclick="dP('+id+')" style="padding:12px 20px;border-radius:12px;background:#E2555515;color:#E25555;font-size:13px;font-weight:700;border:none;cursor:pointer">삭제</button><button onclick="sP('+id+')" style="flex:1;padding:12px;border-radius:12px;background:#1A3C34;color:#fff;font-size:14px;font-weight:800;border:none;cursor:pointer">저장</button></div>';sm(h);}
+function oAP(){var h='<h3 style="font-size:17px;font-weight:800;margin:0 0 14px">프로젝트 추가</h3>';
+  var fs=[["프로젝트명","pn"],["발주처","pc"],["시기","pt"]];
+  for(var i=0;i<fs.length;i++){h+='<div style="margin-bottom:10px"><label style="font-size:11px;color:#85ADA2;display:block;margin-bottom:3px">'+fs[i][0]+'</label><input class="inp" id="'+fs[i][1]+'"></div>';}
+  h+='<div style="margin-bottom:10px"><label style="font-size:11px;color:#85ADA2;display:block;margin-bottom:3px">주요 메모</label><textarea class="ta" id="pm" placeholder="발주방식, 경쟁사..."></textarea></div>';
+  h+='<button onclick="sP(0)" style="width:100%;padding:14px;border-radius:14px;background:#1A3C34;color:#fff;font-size:15px;font-weight:800;border:none;cursor:pointer">추가</button>';sm(h);}
+function sP(id){var n=document.getElementById("pn").value;if(!n.trim()){cm();return;}var o={id:id||Date.now(),name:n,client:document.getElementById("pc").value,timing:document.getElementById("pt").value,memo:document.getElementById("pm").value};if(id)S.p=S.p.map(function(p){return p.id===id?o:p;});else S.p.push(o);sv("s10p",S.p);cm();R();}
+function dP(id){S.p=S.p.filter(function(p){return p.id!==id;});sv("s10p",S.p);cm();R();}
+
+function oEO(id){var o=S.o.find(function(x){return x.id===id;});if(!o)return;
+  var h='<h3 style="font-size:17px;font-weight:800;margin:0 0 14px">수주 수정</h3>';
+  var fs=[["현장명","on",o.name],["발주처","oc",o.client],["공종","ot",o.type]];
+  for(var i=0;i<fs.length;i++){h+='<div style="margin-bottom:10px"><label style="font-size:11px;color:#85ADA2;display:block;margin-bottom:3px">'+fs[i][0]+'</label><input class="inp" id="'+fs[i][1]+'" value="'+es(fs[i][2]||"")+'"></div>';}
+  h+='<div style="margin-bottom:10px"><label style="font-size:11px;color:#85ADA2;display:block;margin-bottom:3px">금액 (억원)</label><input type="number" class="inp" id="oa" value="'+o.amt+'"></div>';
+  window._os=o.status;
+  h+='<div style="margin-bottom:10px"><label style="font-size:11px;color:#85ADA2;display:block;margin-bottom:3px">상태</label><div style="display:flex;gap:8px">';
+  var sts=[["confirmed","확정"],["pending","추진중"]];
+  for(var i=0;i<sts.length;i++){var sl=o.status===sts[i][0];h+='<button data-st="'+sts[i][0]+'" onclick="selSt(\''+sts[i][0]+'\')" style="flex:1;padding:10px;border-radius:10px;border:'+(sl?"2px solid #1A3C34":"1px solid #C8E6DC")+';background:#F0FAF6;font-size:13px;font-weight:600;color:'+(sl?"#1A3C34":"#85ADA2")+';cursor:pointer">'+sts[i][1]+'</button>';}
+  h+='</div></div>';
+  h+='<div style="display:flex;gap:8px;margin-top:12px"><button onclick="dO('+id+')" style="padding:12px 20px;border-radius:12px;background:#E2555515;color:#E25555;font-size:13px;font-weight:700;border:none;cursor:pointer">삭제</button><button onclick="sO('+id+')" style="flex:1;padding:12px;border-radius:12px;background:#1A3C34;color:#fff;font-size:14px;font-weight:800;border:none;cursor:pointer">저장</button></div>';sm(h);}
+function oAO(st){var h='<h3 style="font-size:17px;font-weight:800;margin:0 0 14px">수주 추가</h3>';
+  var fs=[["현장명","on"],["발주처","oc"],["공종","ot"]];
+  for(var i=0;i<fs.length;i++){h+='<div style="margin-bottom:10px"><label style="font-size:11px;color:#85ADA2;display:block;margin-bottom:3px">'+fs[i][0]+'</label><input class="inp" id="'+fs[i][1]+'"></div>';}
+  h+='<div style="margin-bottom:10px"><label style="font-size:11px;color:#85ADA2;display:block;margin-bottom:3px">금액 (억원)</label><input type="number" class="inp" id="oa" value="0"></div>';
+  window._os=st||"confirmed";
+  h+='<button onclick="sO(0)" style="width:100%;padding:14px;border-radius:14px;background:#1A3C34;color:#fff;font-size:15px;font-weight:800;border:none;cursor:pointer">추가</button>';sm(h);}
+function sO(id){var n=document.getElementById("on").value;if(!n.trim()){cm();return;}var o={id:id||Date.now(),name:n,client:document.getElementById("oc").value,type:document.getElementById("ot").value||"토목",amt:parseInt(document.getElementById("oa").value)||0,status:window._os||"confirmed"};if(id)S.o=S.o.map(function(x){return x.id===id?o:x;});else S.o.push(o);sv("s10o",S.o);cm();R();}
+function dO(id){S.o=S.o.filter(function(o){return o.id!==id;});sv("s10o",S.o);cm();R();}
+
+// ═══ HOME ═══
+function RH(){
+  var cs=S.c.slice();
+  if(S.sf>0)cs=cs.filter(function(c){return c.s===S.sf;});
+  if(S.sr){var q=S.sr.toLowerCase();cs=cs.filter(function(c){return c.n.includes(q)||c.o.toLowerCase().includes(q);});}
+  cs.sort(function(a,b){var da=dday(a),db=dday(b);var ra=da.remain===null?-9999:da.remain;var rb=db.remain===null?-9999:db.remain;return ra-rb;});
+  var st={g:0,y:0,r:0,n:0};
+  S.c.forEach(function(c){var v=dday(c).level;if(v==="green")st.g++;else if(v==="yellow")st.y++;else if(v==="red")st.r++;else st.n++;});
+  var cf=S.o.filter(function(o){return o.status==="confirmed";}),pd=S.o.filter(function(o){return o.status==="pending";});
+  var tc=0;cf.forEach(function(o){tc+=o.amt;});var tp=0;pd.forEach(function(o){tp+=o.amt;});var pct=Math.round(tc/GL*100);
+  var h='';
+
+  // Sticky
+  h+='<div style="position:sticky;top:0;z-index:100;background:#E8F5F0;padding-bottom:4px">';
+  h+='<div style="padding:10px 16px 0;display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:10px;color:#E8963F;font-weight:700;letter-spacing:1.5px">SAMBU NETWORK</div><h1 style="font-size:18px;font-weight:900;margin:1px 0 0">영업 네트워크</h1></div><span style="font-size:10px;color:#E8963F;font-weight:700">목표 333</span></div>';
+  h+='<div style="margin:8px 16px 0;background:#fff;border-radius:12px;border:1px solid #C8E6DC;padding:10px 14px">';
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><span style="font-size:24px;font-weight:900;color:#2AA876">'+tc.toLocaleString()+'<span style="font-size:12px;color:#85ADA2;font-weight:600"> / '+GL.toLocaleString()+'억</span></span><span style="font-size:12px;font-weight:800;color:#2AA876">'+pct+'%</span></div>';
+  h+='<div style="height:8px;background:#F0FAF6;border-radius:4px;overflow:hidden;position:relative"><div style="height:100%;width:'+Math.min(pct,100)+'%;background:linear-gradient(90deg,#2AA876,#34D399);border-radius:4px"></div>';
+  if(tp>0)h+='<div style="position:absolute;top:0;left:'+Math.min(pct,100)+'%;height:100%;width:'+Math.min(tp/GL*100,100-pct)+'%;background:#E8963F40;border-radius:0 4px 4px 0"></div>';
+  h+='</div>';
+  if(tp>0)h+='<div style="font-size:10px;color:#E8963F;margin-top:4px">추진중 '+tp.toLocaleString()+'억 포함시 '+Math.round((tc+tp)/GL*100)+'%</div>';
+  h+='</div></div>';
+
+  // Stats
+  h+='<div class="card" style="display:flex;margin-top:8px">';
+  var sts=[{v:st.g,l:"정상",c:"#2AA876"},{v:st.y,l:"임박",c:"#E8963F"},{v:st.r,l:"초과",c:"#E25555"},{v:st.n,l:"미연락",c:"#B8CFC7"}];
+  for(var i=0;i<sts.length;i++){h+='<div style="flex:1;padding:14px 4px;text-align:center;'+(i<3?'border-right:1px solid #C8E6DC':'')+'"><div style="font-size:24px;font-weight:900;color:'+sts[i].c+';line-height:1">'+sts[i].v+'</div><div style="font-size:10px;color:#4A7C6F;margin-top:4px;font-weight:600">'+sts[i].l+'</div></div>';}
+  h+='</div>';
+
+  // Rules
+  h+='<div class="card" style="padding:12px 14px;border-radius:12px"><div style="font-size:11px;font-weight:700;margin-bottom:6px">라포 관리 기준</div><div style="font-size:11px;color:#4A7C6F;line-height:1.8">';
+  h+='<div><span style="color:#2AA876;font-weight:700">✅ 라포유지</span> ★★★→4주 ★★→6주 ★→8주</div>';
+  h+='<div><span style="color:#E8963F;font-weight:700">⚠️ 아쉬움</span> → 중요도 무관 2주 후 재연락</div>';
+  h+='</div></div>';
+
+  // Filter
+  h+='<div style="padding:0 16px;display:flex;align-items:center;gap:6px;margin-bottom:10px">';
+  h+='<input class="inp" id="si" placeholder="이름, 기관 검색" value="'+es(S.sr)+'" style="flex:1">';
+  h+='<div style="display:flex;gap:3px">';
+  var fvs=[0,3,2,1];
+  for(var i=0;i<fvs.length;i++){var v=fvs[i];var on=S.sf===v;
+    h+='<button onclick="S.sf='+(S.sf===v?0:v)+';R()" style="padding:6px 10px;border-radius:8px;border:1px solid '+(on?"#1A3C34":"#C8E6DC")+';background:'+(on?"#1A3C34":"transparent")+';color:'+(on?"#fff":"#85ADA2")+';font-size:10px;font-weight:700;cursor:pointer;font-family:inherit">'+(v===0?"전체":"★★★".slice(0,v))+'</button>';}
+  h+='</div></div>';
+
+  // Contact list
+  h+='<div style="padding:0 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:13px;font-weight:700">인맥 관리 ('+cs.length+'명)</span><button onclick="oAC()" style="padding:6px 12px;border-radius:10px;background:#1A3C34;color:#fff;font-size:11px;font-weight:700;border:none;cursor:pointer">+ 인맥추가</button></div>';
+  h+='<div class="card" style="margin-bottom:0">';
+  for(var i=0;i<cs.length;i++){var c=cs[i];var d=dday(c);var lv=lcol(d.level);var sc=scol(c.s);
+    h+='<div class="row">';
+    h+='<div onclick="oD('+c.id+')" style="flex:1;display:flex;align-items:center;gap:10px;min-width:0;cursor:pointer">';
+    h+='<div style="width:4px;height:42px;border-radius:2px;background:'+lv+';flex-shrink:0"></div>';
+    h+='<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:5px"><span style="font-size:14px;font-weight:700">'+es(c.n)+'</span><span style="font-size:9px;font-weight:700;color:'+sc+'">'+"★★★".slice(0,c.s)+'</span>';
+    if(d.lastRappo===false)h+='<span style="font-size:9px">⚠️</span>';
+    h+='</div><div style="font-size:11px;color:#85ADA2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+es(c.o)+' · '+es(c.r)+'</div></div>';
+    h+='<div style="text-align:right;min-width:55px;flex-shrink:0">';
+    if(d.remain!==null){
+      if(d.remain>=0)h+='<div style="font-size:18px;font-weight:900;color:'+lv+';line-height:1">D-'+d.remain+'</div>';
+      else h+='<div style="font-size:18px;font-weight:900;color:#E25555;line-height:1">+'+Math.abs(d.remain)+'</div>';
+      var tg=TAGS[d.lastTag];h+='<div style="font-size:10px;color:#85ADA2;margin-top:2px">'+(tg?tg.ic:"")+' '+d.daysSince+'일전</div>';
+    }else h+='<div style="font-size:13px;font-weight:700;color:#B8CFC7">미연락</div>';
+    h+='</div></div>';
+    h+='<button onclick="event.stopPropagation();oChk('+c.id+')" style="padding:8px 12px;border-radius:10px;background:#2AA87615;border:none;cursor:pointer;font-size:13px;font-weight:700;color:#2AA876;flex-shrink:0">체크</button>';
+    h+='</div>';}
+  h+='</div><div style="text-align:center;padding:12px;font-size:11px;color:#85ADA2">'+cs.length+'명</div>';
+
+  // Orders
+  h+='<div class="card"><div style="padding:8px 16px;display:flex;justify-content:space-between;align-items:center;background:#F0FAF6"><span style="font-size:12px;font-weight:700">수주 현황</span><button onclick="oAO(\'confirmed\')" style="padding:6px 12px;border-radius:10px;background:#1A3C34;color:#fff;font-size:11px;font-weight:700;border:none;cursor:pointer">+ 수주추가</button></div>';
+  h+='<div style="border-top:1px solid #C8E6DC;padding:8px 12px 4px"><div style="font-size:11px;font-weight:700;color:#4A7C6F;margin-bottom:6px">확정 ('+cf.length+'건 '+tc+'억)</div><div class="g2">';
+  for(var i=0;i<cf.length;i++){var o=cf[i];h+='<div onclick="oEO('+o.id+')" style="padding:6px 8px;border-radius:8px;border:1px solid #C8E6DC;cursor:pointer;background:#F0FAF6"><div style="font-size:11px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+es(o.name)+'</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px"><span style="font-size:9px;color:#85ADA2">'+es(o.client)+'</span><span style="font-size:11px;font-weight:800;color:#2AA876">'+o.amt+'억</span></div></div>';}
+  h+='</div></div>';
+  h+='<div style="border-top:1px solid #C8E6DC;padding:8px 12px 8px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:11px;font-weight:700;color:#E8963F">추진중 ('+pd.length+'건 '+tp+'억)</span><button onclick="oAO(\'pending\')" style="background:none;border:none;color:#E8963F;font-size:11px;font-weight:700;cursor:pointer">+ 추가</button></div><div class="g2">';
+  for(var i=0;i<pd.length;i++){var o=pd[i];h+='<div onclick="oEO('+o.id+')" style="padding:6px 8px;border-radius:8px;border:1px solid #C8E6DC;cursor:pointer;background:#F0FAF6"><div style="font-size:11px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+es(o.name)+'</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px"><span style="font-size:9px;color:#85ADA2">'+es(o.client)+'</span><span style="font-size:11px;font-weight:800;color:#E8963F">'+o.amt+'억</span></div></div>';}
+  h+='</div></div></div>';
+
+  // Projects
+  h+='<div style="padding:0 16px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><h2 style="font-size:14px;font-weight:800;margin:0">📋 2026 프로젝트</h2><button onclick="oAP()" style="background:none;border:none;color:#E8963F;font-size:11px;font-weight:700;cursor:pointer">+ 추가</button></div><div class="g2">';
+  for(var i=0;i<S.p.length;i++){var j=S.p[i];h+='<div onclick="oEP('+j.id+')" style="padding:8px 10px;background:#fff;border-radius:10px;border:1px solid #C8E6DC;cursor:pointer"><div style="font-size:11px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+es(j.name)+'</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px"><span style="font-size:9px;color:#E8963F;background:#E8963F15;padding:1px 5px;border-radius:4px;font-weight:600">'+es(j.client)+'</span><span style="font-size:9px;color:#4A7C6F;font-weight:600">'+es(j.timing)+'</span></div>';if(j.memo)h+='<div style="font-size:9px;color:#85ADA2;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+es(j.memo)+'</div>';h+='</div>';}
+  h+='</div></div>';
+
+  $.innerHTML=h;
+  document.getElementById("si").addEventListener("input",function(e){S.sr=e.target.value;R();});
+}
+
+// ═══ DETAIL ═══
+function RD(){
+  var c=S.sel;if(!c)return;
+  var d=dday(c);var lv=lcol(d.level);var sc=scol(c.s);
+  var cl=S.l.filter(function(l){return l.cid===c.id;}).sort(function(a,b){return new Date(b.dt)-new Date(a.dt);});
+  var h='';
+
+  h+='<div style="padding:8px 16px"><button onclick="S.tab=\'home\';R()" style="width:100%;padding:12px;border-radius:12px;background:#1A3C34;color:#fff;font-size:14px;font-weight:800;border:none;cursor:pointer;font-family:inherit">← 목록으로 돌아가기</button></div>';
+
+  h+='<div style="text-align:center;padding:0 20px 20px">';
+  h+='<div style="width:110px;height:110px;border-radius:50%;margin:0 auto 14px;background:'+lv+'12;border:4px solid '+lv+';display:flex;align-items:center;justify-content:center;flex-direction:column">';
+  if(d.remain!==null){
+    if(d.remain>=0)h+='<div style="font-size:32px;font-weight:900;color:'+lv+';line-height:1">D-'+d.remain+'</div>';
+    else h+='<div style="font-size:32px;font-weight:900;color:#E25555;line-height:1">+'+Math.abs(d.remain)+'</div>';
+    h+='<div style="font-size:11px;color:'+lv+';font-weight:600;margin-top:4px">'+(d.remain>=0?"남음":"초과")+'</div>';
+  }else h+='<div style="font-size:16px;font-weight:700;color:#B8CFC7">미연락</div>';
+  h+='</div>';
+  if(d.lastRappo===false)h+='<div style="font-size:13px;font-weight:700;color:#E8963F;margin-bottom:6px">⚠️ 지난번 아쉬움 → 2주 내 재연락</div>';
+  h+='<h2 style="font-size:24px;font-weight:900;margin:0 0 2px">'+es(c.n)+'</h2>';
+  h+='<div style="font-size:13px;color:#4A7C6F">'+es(c.r)+' · '+es(c.o)+'</div>';
+  if(c.d)h+='<div style="font-size:12px;color:#85ADA2;margin-top:2px">'+es(c.d)+'</div>';
+  h+='<div style="display:flex;justify-content:center;align-items:center;gap:4px;margin-top:10px">';
+  for(var v=1;v<=3;v++){h+='<button style="background:none;border:none;font-size:24px;cursor:pointer;color:'+(v<=c.s?sc:"#B8CFC7")+';padding:0 2px" onclick="uS('+v+')">★</button>';}
+  h+='<span style="font-size:12px;color:#85ADA2;margin-left:8px">'+SD[c.s]+'</span></div></div>';
+
+  h+='<div style="padding:0 16px;margin-bottom:16px"><button onclick="oChk('+c.id+')" style="width:100%;padding:16px;border-radius:14px;background:#2AA876;border:none;color:#fff;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit">✅ 접촉 기록하기</button></div>';
+
+  h+='<div style="padding:0 16px;margin-bottom:16px"><button onclick="tE()" style="width:100%;padding:12px;border-radius:12px;border:1px solid #C8E6DC;background:#fff;color:#4A7C6F;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">✏️ 정보 수정 / 삭제</button><div id="ea"></div></div>';
+
+  h+='<div style="padding:0 16px"><div style="font-size:12px;font-weight:700;color:#4A7C6F;margin-bottom:8px">연락 이력 ('+cl.length+'건)</div>';
+  if(!cl.length){h+='<div style="text-align:center;padding:24px;background:#fff;border-radius:10px;color:#85ADA2;font-size:12px;border:1px solid #C8E6DC">기록 없음</div>';}
+  else{h+='<div style="border-radius:12px;overflow:hidden;border:1px solid #C8E6DC">';
+    for(var i=0;i<cl.length;i++){var l=cl[i];var tg=TAGS[l.tag];var dt=new Date(l.dt);
+      h+='<div style="display:flex;align-items:center;gap:8px;padding:9px 12px;background:#fff;border-bottom:1px solid #C8E6DC">';
+      h+='<span style="font-size:16px">'+(tg?tg.ic:"📌")+'</span>';
+      h+='<div style="flex:1"><div style="font-size:12px;font-weight:600">'+(tg?tg.l:"기타")+' · '+(dt.getMonth()+1)+'/'+dt.getDate()+'</div>';
+      if(l.memo)h+='<div style="font-size:11px;color:#85ADA2;margin-top:1px">'+es(l.memo)+'</div>';
+      h+='</div>';
+      h+='<span style="font-size:11px;font-weight:700;color:'+(l.rappo?"#2AA876":"#E8963F")+'">'+(l.rappo?"✅":"⚠️")+'</span>';
+      h+='<button onclick="dL('+l.id+')" style="background:none;border:none;color:#85ADA2;font-size:12px;cursor:pointer;padding:4px">✕</button></div>';}
+    h+='</div>';}
+
+  h+='<div style="height:70px"></div>';
+  h+='<div style="position:fixed;bottom:0;left:0;right:0;padding:12px 16px;background:linear-gradient(transparent,#E8F5F0 30%);z-index:99;display:flex;justify-content:center"><button onclick="S.tab=\'home\';R()" style="width:100%;max-width:448px;padding:14px;border-radius:14px;background:#1A3C34;color:#fff;font-size:15px;font-weight:800;border:none;cursor:pointer;font-family:inherit;box-shadow:0 -2px 12px rgba(0,0,0,0.1)">← 목록으로 돌아가기</button></div>';
+  $.innerHTML=h;
+}
+
+R();
+if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});
+</script>
+</body>
+</html>
