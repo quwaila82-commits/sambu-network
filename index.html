@@ -286,7 +286,8 @@ function RH(){
     h+='<div style="width:4px;height:42px;border-radius:2px;background:'+lv+';flex-shrink:0"></div>';
     h+='<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:5px"><span style="font-size:14px;font-weight:700">'+es(c.n)+'</span><span style="font-size:9px;font-weight:700;color:'+sc+'">'+"★★★".slice(0,c.s)+'</span>';
     if(d.lastRappo===false)h+='<span style="font-size:9px">⚠️</span>';
-    if(S.catF==="전체")h+='<span style="font-size:8px;color:#85ADA2;background:#F0FAF6;padding:1px 4px;border-radius:3px">'+grpLabel+'</span>';
+    var gc=grpLabel==="관"?"#3B82F6":grpLabel==="정치권"?"#8B5CF6":"#E8963F";
+    h+='<span style="font-size:8px;color:'+gc+';background:'+gc+'12;padding:1px 5px;border-radius:3px;font-weight:600">'+grpLabel+'</span>';
     h+='</div><div style="font-size:11px;color:#85ADA2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+es(c.o)+' · '+es(c.r)+'</div></div>';
     h+='<div style="text-align:right;min-width:55px;flex-shrink:0">';
     if(d.remain!==null){
@@ -315,7 +316,7 @@ function RH(){
   h+='</div></div>';
 
   $.innerHTML=h;
-  var si=document.getElementById("si");if(si)si.addEventListener("input",function(e){S.sr=e.target.value;R();});
+  var si=document.getElementById("si");if(si){si.addEventListener("input",function(e){S.sr=e.target.value;R();});si.focus();si.setSelectionRange(S.sr.length,S.sr.length);}
 }
 
 // ═══ DETAIL ═══
