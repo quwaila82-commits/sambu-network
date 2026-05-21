@@ -37,20 +37,29 @@ var TAGKEYS=["call","tea","lunch","dinner","etc"];
 var CYCLE={3:28,2:42,1:56};
 var RETRY=14;
 var SD={3:"핵심 4주",2:"중요 6주",1:"관리 8주"};
-var CT=[{k:"gov_local",l:"지자체",g:"관"},{k:"gov_central",l:"정부부처",g:"관"},{k:"gov_agency",l:"산하기관",g:"관"},{k:"politics",l:"정치권",g:"관"},{k:"big_const",l:"건설사",g:"민"},{k:"big_other",l:"비건설사",g:"민"},{k:"client",l:"건축주",g:"기타"}];
+var CT=[{k:"gov_local",l:"지자체",g:"관"},{k:"gov_central",l:"정부부처",g:"관"},{k:"gov_agency",l:"산하기관",g:"관"},{k:"politics",l:"정치권",g:"정치권"},{k:"big_const",l:"건설사",g:"민"},{k:"big_other",l:"비건설사",g:"민"},{k:"client",l:"건축주",g:"민"}];
+var CGRP=["전체","관","민","정치권"];
+function catGrp(cat){var f=CT.find(function(x){return x.k===cat;});return f?f.g:"민";}
 var GL=3000;
 var IP=[{id:1,name:"서남권 풍력발전 800MW",client:"전북도청",timing:"진행중",memo:""},{id:2,name:"신안 비금~암태 도로개설(5000억)",client:"익산청",timing:"기본설계",memo:"기본설계 기술제안"},{id:3,name:"부산진해신항 준설(3180억)",client:"부건소",timing:"26.12",memo:"대안, 대우/동부/한라"},{id:4,name:"부산진해신항 서컨부두(3328억)",client:"BPA",timing:"26.하",memo:"대안, 현대/대우"},{id:5,name:"고양차량기지 증설(4400억)",client:"철도공단",timing:"26.6",memo:"턴키, DL"},{id:6,name:"CTX 개발(민자사업)",client:"철도공단",timing:"26.9",memo:"DL"},{id:7,name:"용인반도체 국가산단 2공구(8200억)",client:"LH",timing:"26.06",memo:"CMR, 롯데 vs 대보"}];
 var IO=[{id:101,name:"전라유학진흥원 건립사업",client:"전라북도",type:"건축",amt:55,status:"confirmed"},{id:102,name:"임실군 농업기술센터",client:"전라북도 임실군",type:"건축",amt:64,status:"confirmed"},{id:103,name:"임실 섬진강자연학습장",client:"전라북도임실교육지원청",type:"건축",amt:20,status:"confirmed"},{id:104,name:"새만금~전주간 조경(2공구)",client:"한국도로공사",type:"조경",amt:46,status:"confirmed"},{id:105,name:"삼천포 하수도정비 침수대응",client:"경남지방조달청",type:"토목",amt:94,status:"confirmed"},{id:106,name:"수서~광주 복선전철 2공구",client:"국가철도공단",type:"토목",amt:252,status:"confirmed"},{id:107,name:"광주송정~순천 철도 1공구",client:"국가철도공단",type:"토목",amt:169,status:"confirmed"},{id:108,name:"새만금 연결도로(1공구)",client:"새만금개발청",type:"토목",amt:100,status:"confirmed"},{id:109,name:"전주보름특수학교 신축",client:"전북특별자치도교육청",type:"건축",amt:108,status:"confirmed"},{id:110,name:"가덕도 신공항 접근철도 2공구",client:"국가철도공단",type:"토목",amt:199,status:"confirmed"},{id:111,name:"새만금 스마트수변도시 2공구",client:"새만금개발공사",type:"토목",amt:178,status:"confirmed"},{id:112,name:"국립군산대 공대 리모델링",client:"국립군산대학교",type:"건축",amt:49,status:"confirmed"},{id:113,name:"동원탄좌 폐경석 사면보강",client:"강원랜드",type:"토건",amt:116,status:"confirmed"},{id:114,name:"전주컨벤션 센터 건립",client:"전주시",type:"건축",amt:170,status:"confirmed"},{id:115,name:"순창군 농어촌생활용수 개발",client:"순창군",type:"토목",amt:74,status:"confirmed"},{id:116,name:"새만금 농업용수 공급(2공구)",client:"농어촌공사",type:"토목",amt:110,status:"confirmed"},{id:201,name:"남부내륙철도 9공구",client:"국가철도공단",type:"토목",amt:350,status:"pending"},{id:202,name:"고양차량기지 증설사업",client:"국가철도공단",type:"토목",amt:220,status:"pending"},{id:203,name:"하수처리수 재이용사업",client:"코웨이엔텍",type:"토목",amt:120,status:"pending"},{id:204,name:"전주병원 증축공사",client:"전주병원",type:"건축",amt:200,status:"pending"},{id:205,name:"전주 광역권 소각장",client:"전주시",type:"토목",amt:200,status:"pending"},{id:206,name:"진해신항 준설공사",client:"해수부",type:"토목",amt:150,status:"pending"},{id:207,name:"대한방직 공공기여분",client:"전주시",type:"토목",amt:150,status:"pending"}];
 var IC=[{id:1,n:"설상일",r:"5급 팀장",o:"전북도청",d:"도의회",cat:"gov_local",s:3},{id:2,n:"김용성",r:"5급 팀장",o:"전북도청",d:"기후변화대응팀장",cat:"gov_local",s:2},{id:3,n:"신동호",r:"5급 팀장",o:"전북도청",d:"공무원 노사팀장",cat:"gov_local",s:1},{id:4,n:"김용준",r:"5급 팀장",o:"전북도청",d:"기후위기대응 홍보팀장",cat:"gov_local",s:1},{id:5,n:"조선화",r:"5급 팀장",o:"전북도청",d:"생태자원팀장",cat:"gov_local",s:1},{id:6,n:"임정빈",r:"5급 과장",o:"전주시청",d:"광역도시기반조성",cat:"gov_local",s:3},{id:7,n:"유인환",r:"5급 과장",o:"전주시청",d:"하천과",cat:"gov_local",s:2},{id:8,n:"이상복",r:"5급 과장",o:"전주시청",d:"도시개발과",cat:"gov_local",s:2},{id:9,n:"임상빈",r:"6급 팀장",o:"전주시청",d:"개발사업팀",cat:"gov_local",s:2},{id:10,n:"류성훈",r:"6급 팀장",o:"전주시청",d:"재개발건축팀",cat:"gov_local",s:2},{id:11,n:"한민희",r:"정무보좌관",o:"전주시청",d:"",cat:"gov_local",s:1},{id:12,n:"채범수",r:"5급 과장",o:"완주군",d:"군의회, 건축",cat:"gov_local",s:2},{id:13,n:"김광준",r:"6급 팀장",o:"완주군",d:"하천기반과",cat:"gov_local",s:1},{id:14,n:"박준건",r:"6급 팀장",o:"완주군",d:"용진읍 부읍장",cat:"gov_local",s:1},{id:15,n:"정효곤",r:"4급 국장",o:"김제시",d:"도시건설국장",cat:"gov_local",s:1},{id:16,n:"박명주",r:"3급 과장",o:"국토부",d:"수도권 정책과",cat:"gov_central",s:1},{id:17,n:"박유서",r:"5급",o:"국토부",d:"남원도로관리사무소",cat:"gov_central",s:2},{id:18,n:"송명근",r:"5급",o:"국토부",d:"익산청 도로공사과",cat:"gov_central",s:2},{id:19,n:"장기욱",r:"국장",o:"해수부",d:"부산항건설사무소장",cat:"gov_central",s:1},{id:20,n:"김용수",r:"사무관",o:"해수부",d:"6월 본청 복귀",cat:"gov_central",s:2},{id:21,n:"박형배",r:"1급",o:"행안부",d:"안전예방정책실장",cat:"gov_central",s:1},{id:22,n:"서윤식",r:"부장",o:"국가철도공단",d:"총사업비 담당",cat:"gov_agency",s:3},{id:23,n:"김정석",r:"부장",o:"국가철도공단",d:"이천문경사업단 TF단장",cat:"gov_agency",s:2},{id:24,n:"김창영",r:"처장",o:"국가철도공단",d:"GTX 추진단",cat:"gov_agency",s:3},{id:25,n:"선기운",r:"본부장(이사)",o:"새만금개발공사",d:"개발본부장",cat:"gov_agency",s:3},{id:26,n:"권영호",r:"",o:"새만금개발청",d:"전 비서실장",cat:"gov_agency",s:2},{id:27,n:"김대근",r:"사장",o:"전북개발공사",d:"전 현대건설 상무",cat:"gov_agency",s:1},{id:28,n:"송재철",r:"본부장",o:"전북개발공사",d:"개발사업 총괄",cat:"gov_agency",s:1},{id:29,n:"정경훈",r:"사장",o:"GTX A",d:"전 국토부 기조실장",cat:"gov_agency",s:2},{id:30,n:"김상도",r:"고문",o:"GTX A",d:"전 항공정책국장",cat:"gov_agency",s:2},{id:31,n:"방근배",r:"감사실장",o:"한국탄소산업진흥원",d:"",cat:"gov_agency",s:1},{id:32,n:"조경민",r:"비상임이사",o:"LH",d:"감사, 회계사",cat:"gov_agency",s:2},{id:33,n:"김윤덕",r:"국토부장관",o:"정치권",d:"전주갑",cat:"politics",s:1},{id:34,n:"안호영",r:"의원",o:"정치권",d:"완주 진안 무주",cat:"politics",s:1},{id:35,n:"이명연",r:"부의장",o:"정치권",d:"전북도의회",cat:"politics",s:1},{id:36,n:"이원택",r:"의원",o:"정치권",d:"김제,부안",cat:"politics",s:1},{id:37,n:"김동환",r:"보좌관",o:"정치권",d:"국토부장관",cat:"politics",s:3},{id:38,n:"조중덕",r:"보좌관",o:"정치권",d:"조지훈 의원",cat:"politics",s:1},{id:39,n:"이해규",r:"보좌관",o:"정치권",d:"이원택 의원",cat:"politics",s:2},{id:40,n:"이장훈",r:"상무",o:"현대건설",d:"커뮤니케이션실",cat:"big_const",s:2},{id:41,n:"서경덕",r:"팀장",o:"현대건설",d:"커뮤니케이션실",cat:"big_const",s:1},{id:42,n:"임경묵",r:"책임(팀장)",o:"현대건설",d:"LH, 국토부",cat:"big_const",s:2},{id:43,n:"최중관",r:"팀장",o:"한화건설",d:"공공영업",cat:"big_const",s:2},{id:44,n:"한혁열",r:"차장",o:"한화건설",d:"공공영업",cat:"big_const",s:1},{id:45,n:"김학진",r:"차장",o:"한화건설",d:"공공영업",cat:"big_const",s:1},{id:46,n:"송준호",r:"본부장(상무)",o:"쌍용건설",d:"토목총괄",cat:"big_const",s:2},{id:47,n:"전기종",r:"팀장",o:"쌍용건설",d:"토목영업",cat:"big_const",s:1},{id:48,n:"박현철",r:"차장",o:"쌍용건설",d:"토목영업",cat:"big_const",s:2},{id:49,n:"정주현",r:"차장",o:"쌍용건설",d:"토목영업",cat:"big_const",s:1},{id:50,n:"장윤성",r:"차장",o:"쌍용건설",d:"토목영업",cat:"big_const",s:1},{id:51,n:"박규수",r:"본부장(전무)",o:"KCC건설",d:"인프라사업 총괄",cat:"big_const",s:2},{id:52,n:"정병용",r:"상무",o:"대보건설",d:"공공영업",cat:"big_const",s:3},{id:53,n:"이길수",r:"차장",o:"대보건설",d:"",cat:"big_const",s:1},{id:54,n:"양승범",r:"상무",o:"동부건설",d:"국토부,해수부",cat:"big_const",s:2},{id:55,n:"장지영",r:"본부장(전무)",o:"롯데건설",d:"토목본부",cat:"big_const",s:1},{id:56,n:"이상한",r:"상무",o:"롯데건설",d:"토목본부",cat:"big_const",s:1},{id:57,n:"윤정기",r:"팀장",o:"롯데건설",d:"토목 기술영업",cat:"big_const",s:2},{id:58,n:"김정락",r:"수석",o:"롯데건설",d:"건축 입찰파트장",cat:"big_const",s:2},{id:59,n:"박창길",r:"상무",o:"계룡건설",d:"철도공단, 국토부",cat:"big_const",s:1},{id:60,n:"이희석",r:"부장",o:"계룡건설",d:"종심제 컨소시엄",cat:"big_const",s:1},{id:61,n:"이호비",r:"팀장",o:"롯데쇼핑",d:"개발2팀",cat:"big_other",s:2},{id:62,n:"최정웅",r:"이사장",o:"전주병원",d:"",cat:"client",s:1},{id:63,n:"정희석",r:"비서실장",o:"우석대 재단",d:"",cat:"client",s:1}];
 
 var NW=new Date();NW.setHours(0,0,0,0);
-var S={tab:"home",sel:null,sf:3,sr:"",c:[],l:[],p:[],o:[]};
+var S={tab:"home",sel:null,sf:3,sr:"",catF:"전체",c:[],l:[],p:[],o:[],showContacts:false};
 function ld(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
 function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 S.c=ld("s10c",IC);S.l=ld("s10l",[]);S.p=ld("s10p",IP);S.o=ld("s10o",IO);
 function _dd(a,b){return Math.round((b-a)/864e5);}
 function td(){return new Date().toISOString().split("T")[0];}
 function es(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML;}
+
+// Weekly tracker
+function getWeekMon(){var d=new Date();var day=d.getDay();var diff=d.getDate()-day+(day===0?-6:1);return new Date(d.getFullYear(),d.getMonth(),diff);}
+function getWeekKey(){var m=getWeekMon();return "s10w-"+m.getFullYear()+"-"+(m.getMonth()+1)+"-"+m.getDate();}
+function getWeek(){return ld(getWeekKey(),{});}
+function setWk(day,slot){var w=getWeek();if(!w[day])w[day]={m:false,c1:false,c2:false,c3:false};w[day][slot]=!w[day][slot];sv(getWeekKey(),w);R();}
+function weekStats(){var w=getWeek();var done=0;var DAYS=["mon","tue","wed","thu","fri"];for(var i=0;i<5;i++){var d=w[DAYS[i]];if(d&&d.m&&d.c1&&d.c2&&d.c3)done++;}return done;}
 
 function dday(c){
   var my=S.l.filter(function(l){return l.cid===c.id;}).sort(function(a,b){return new Date(b.dt)-new Date(a.dt);});
@@ -195,13 +204,66 @@ function RH(){
   for(var i=0;i<sts.length;i++){h+='<div style="flex:1;padding:14px 4px;text-align:center;'+(i<3?'border-right:1px solid #C8E6DC':'')+'"><div style="font-size:24px;font-weight:900;color:'+sts[i].c+';line-height:1">'+sts[i].v+'</div><div style="font-size:10px;color:#4A7C6F;margin-top:4px;font-weight:600">'+sts[i].l+'</div></div>';}
   h+='</div>';
 
+  // Weekly tracker "1방3콜"
+  var wk=getWeek();var mon=getWeekMon();var wDone=weekStats();
+  var DAYS=["mon","tue","wed","thu","fri"];var DLBL=["월","화","수","목","금"];
+  var today=new Date();today.setHours(0,0,0,0);
+  h+='<div class="card" style="padding:14px">';
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">';
+  h+='<div><div style="font-size:13px;font-weight:800">📅 금주 네트워크 활동</div>';
+  var monDt=new Date(mon);h+='<div style="font-size:10px;color:#85ADA2;margin-top:2px">'+(monDt.getMonth()+1)+'/'+monDt.getDate()+' ~ '+(monDt.getMonth()+1)+'/'+(monDt.getDate()+4)+' (1방3콜 x 5일)</div></div>';
+  var wClr=wDone>=5?"#2AA876":wDone>=3?"#E8963F":"#E25555";
+  h+='<div style="text-align:center"><div style="font-size:22px;font-weight:900;color:'+wClr+'">'+wDone+'<span style="font-size:13px;color:#85ADA2">/5</span></div></div>';
+  h+='</div>';
+  // Day rows
+  for(var i=0;i<5;i++){
+    var dk=DAYS[i];var dl=DLBL[i];
+    var dayDt=new Date(mon.getTime()+i*864e5);
+    var dateStr=(dayDt.getMonth()+1)+'/'+dayDt.getDate();
+    var isToday=dayDt.getTime()===today.getTime();
+    var isPast=dayDt<today;
+    var dw=wk[dk]||{m:false,c1:false,c2:false,c3:false};
+    var dayDone=dw.m&&dw.c1&&dw.c2&&dw.c3;
+    var bgc=isToday?"#E8F5F0":dayDone?"#F0FAF6":"#fff";
+    h+='<div style="display:flex;align-items:center;gap:8px;padding:8px 0;'+(i<4?'border-bottom:1px solid #C8E6DC':'')+';background:'+bgc+'">';
+    h+='<div style="width:40px;text-align:center;flex-shrink:0"><div style="font-size:12px;font-weight:'+(isToday?'800':'600')+';color:'+(isToday?'#1A3C34':'#85ADA2')+'">'+dl+'</div><div style="font-size:10px;color:#85ADA2">'+dateStr+'</div></div>';
+    // 1방 (meeting)
+    h+='<button onclick="setWk(\''+dk+'\',\'m\')" style="display:flex;align-items:center;gap:3px;padding:6px 10px;border-radius:8px;border:1px solid '+(dw.m?'#2AA876':'#C8E6DC')+';background:'+(dw.m?'#2AA87615':'#fff')+';cursor:pointer;font-size:12px;font-weight:600;color:'+(dw.m?'#2AA876':'#85ADA2')+'">'+(dw.m?'✅':'☐')+' 1방</button>';
+    // 3콜
+    var slots=["c1","c2","c3"];
+    for(var j=0;j<3;j++){
+      var sk=slots[j];var ck=dw[sk];
+      h+='<button onclick="setWk(\''+dk+'\',\''+sk+'\')" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid '+(ck?'#3B82F6':'#C8E6DC')+';background:'+(ck?'#3B82F615':'#fff')+';cursor:pointer;font-size:11px;color:'+(ck?'#3B82F6':'#85ADA2')+'">'+(ck?'✅':'📞')+'</button>';
+    }
+    // completion indicator
+    if(dayDone)h+='<span style="font-size:11px;font-weight:700;color:#2AA876;flex-shrink:0">완료</span>';
+    else if(isPast&&!isToday)h+='<span style="font-size:11px;color:#E25555;flex-shrink:0">미완</span>';
+    h+='</div>';
+  }
+  h+='</div>';
+
+  // Collapsible contact section
+  var cntGov=0,cntMin=0,cntPol=0;
+  S.c.forEach(function(c){var g=catGrp(c.cat);if(g==="관")cntGov++;else if(g==="민")cntMin++;else if(g==="정치권")cntPol++;});
+  h+='<div style="padding:0 16px;margin-bottom:12px"><button onclick="S.showContacts=!S.showContacts;R()" style="width:100%;padding:12px;border-radius:12px;border:1px solid #C8E6DC;background:#fff;color:#1A3C34;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:space-between">';
+  h+='<span>🤝 인맥 관리 (관 '+cntGov+' · 민 '+cntMin+' · 정치권 '+cntPol+')</span>';
+  h+='<span style="font-size:11px;color:#85ADA2">'+(S.showContacts?'접기 ▲':'펼치기 ▼')+'</span>';
+  h+='</button></div>';
+
+  if(S.showContacts){
   // Rules
   h+='<div class="card" style="padding:12px 14px;border-radius:12px"><div style="font-size:11px;font-weight:700;margin-bottom:6px">라포 관리 기준</div><div style="font-size:11px;color:#4A7C6F;line-height:1.8">';
   h+='<div><span style="color:#2AA876;font-weight:700">✅ 라포유지</span> ★★★→4주 ★★→6주 ★→8주</div>';
   h+='<div><span style="color:#E8963F;font-weight:700">⚠️ 아쉬움</span> → 중요도 무관 2주 후 재연락</div>';
   h+='</div></div>';
 
-  // Filter
+  // Category filter
+  h+='<div style="padding:0 16px;display:flex;gap:6px;margin-bottom:8px">';
+  for(var gi=0;gi<CGRP.length;gi++){var gv=CGRP[gi];var gon=S.catF===gv;
+    h+='<button onclick="S.catF=\''+gv+'\';R()" style="flex:1;padding:8px 4px;border-radius:10px;border:1px solid '+(gon?'#1A3C34':'#C8E6DC')+';background:'+(gon?'#1A3C34':'#fff')+';color:'+(gon?'#fff':'#85ADA2')+';font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">'+gv+'</button>';}
+  h+='</div>';
+
+  // Star + search filter
   h+='<div style="padding:0 16px;display:flex;align-items:center;gap:6px;margin-bottom:10px">';
   h+='<input class="inp" id="si" placeholder="이름, 기관 검색" value="'+es(S.sr)+'" style="flex:1">';
   h+='<div style="display:flex;gap:3px">';
@@ -210,15 +272,21 @@ function RH(){
     h+='<button onclick="S.sf='+(S.sf===v?0:v)+';R()" style="padding:6px 10px;border-radius:8px;border:1px solid '+(on?"#1A3C34":"#C8E6DC")+';background:'+(on?"#1A3C34":"transparent")+';color:'+(on?"#fff":"#85ADA2")+';font-size:10px;font-weight:700;cursor:pointer;font-family:inherit">'+(v===0?"전체":"★★★".slice(0,v))+'</button>';}
   h+='</div></div>';
 
+  // Apply category filter to list
+  var csFilt=cs;
+  if(S.catF!=="전체"){csFilt=cs.filter(function(c){return catGrp(c.cat)===S.catF;});}
+
   // Contact list
-  h+='<div style="padding:0 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:13px;font-weight:700">인맥 관리 ('+cs.length+'명)</span><button onclick="oAC()" style="padding:6px 12px;border-radius:10px;background:#1A3C34;color:#fff;font-size:11px;font-weight:700;border:none;cursor:pointer">+ 인맥추가</button></div>';
+  h+='<div style="padding:0 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:13px;font-weight:700">'+S.catF+' ('+csFilt.length+'명)</span><button onclick="oAC()" style="padding:6px 12px;border-radius:10px;background:#1A3C34;color:#fff;font-size:11px;font-weight:700;border:none;cursor:pointer">+ 인맥추가</button></div>';
   h+='<div class="card" style="margin-bottom:0">';
-  for(var i=0;i<cs.length;i++){var c=cs[i];var d=dday(c);var lv=lcol(d.level);var sc=scol(c.s);
+  for(var i=0;i<csFilt.length;i++){var c=csFilt[i];var d=dday(c);var lv=lcol(d.level);var sc=scol(c.s);
+    var grpLabel=catGrp(c.cat);
     h+='<div class="row">';
     h+='<div onclick="oD('+c.id+')" style="flex:1;display:flex;align-items:center;gap:10px;min-width:0;cursor:pointer">';
     h+='<div style="width:4px;height:42px;border-radius:2px;background:'+lv+';flex-shrink:0"></div>';
     h+='<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:5px"><span style="font-size:14px;font-weight:700">'+es(c.n)+'</span><span style="font-size:9px;font-weight:700;color:'+sc+'">'+"★★★".slice(0,c.s)+'</span>';
     if(d.lastRappo===false)h+='<span style="font-size:9px">⚠️</span>';
+    if(S.catF==="전체")h+='<span style="font-size:8px;color:#85ADA2;background:#F0FAF6;padding:1px 4px;border-radius:3px">'+grpLabel+'</span>';
     h+='</div><div style="font-size:11px;color:#85ADA2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+es(c.o)+' · '+es(c.r)+'</div></div>';
     h+='<div style="text-align:right;min-width:55px;flex-shrink:0">';
     if(d.remain!==null){
@@ -229,7 +297,8 @@ function RH(){
     h+='</div></div>';
     h+='<button onclick="event.stopPropagation();oChk('+c.id+')" style="padding:8px 12px;border-radius:10px;background:#2AA87615;border:none;cursor:pointer;font-size:13px;font-weight:700;color:#2AA876;flex-shrink:0">체크</button>';
     h+='</div>';}
-  h+='</div><div style="text-align:center;padding:12px;font-size:11px;color:#85ADA2">'+cs.length+'명</div>';
+  h+='</div><div style="text-align:center;padding:12px;font-size:11px;color:#85ADA2">'+csFilt.length+'명</div>';
+  } // end showContacts
 
   // Orders
   h+='<div class="card"><div style="padding:8px 16px;display:flex;justify-content:space-between;align-items:center;background:#F0FAF6"><span style="font-size:12px;font-weight:700">수주 현황</span><button onclick="oAO(\'confirmed\')" style="padding:6px 12px;border-radius:10px;background:#1A3C34;color:#fff;font-size:11px;font-weight:700;border:none;cursor:pointer">+ 수주추가</button></div>';
@@ -246,7 +315,7 @@ function RH(){
   h+='</div></div>';
 
   $.innerHTML=h;
-  document.getElementById("si").addEventListener("input",function(e){S.sr=e.target.value;R();});
+  var si=document.getElementById("si");if(si)si.addEventListener("input",function(e){S.sr=e.target.value;R();});
 }
 
 // ═══ DETAIL ═══
