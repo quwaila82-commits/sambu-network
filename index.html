@@ -316,7 +316,7 @@ function RH(){
   h+='</div></div>';
 
   $.innerHTML=h;
-  var si=document.getElementById("si");if(si){si.addEventListener("input",function(e){S.sr=e.target.value;R();});si.focus();si.setSelectionRange(S.sr.length,S.sr.length);}
+  var si=document.getElementById("si");if(si){var _comp=false;si.addEventListener("compositionstart",function(){_comp=true;});si.addEventListener("compositionend",function(e){_comp=false;S.sr=e.target.value;R();});si.addEventListener("input",function(e){if(!_comp){S.sr=e.target.value;R();}});if(S.sr){si.focus();si.setSelectionRange(S.sr.length,S.sr.length);}}
 }
 
 // ═══ DETAIL ═══
