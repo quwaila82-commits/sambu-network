@@ -73,6 +73,40 @@ function dday(c){
 function lcol(lv){return lv==="green"?"#2AA876":lv==="yellow"?"#E8963F":lv==="red"?"#E25555":"#B8CFC7";}
 function scol(s){return s===3?"#EF4444":s===2?"#F59E0B":"#9CA3AF";}
 
+function filterContacts(){
+  var cs=S.c.slice();
+  if(S.sf>0)cs=cs.filter(function(c){return c.s===S.sf;});
+  if(S.sr){var q=S.sr.toLowerCase();cs=cs.filter(function(c){return c.n.includes(q)||c.o.toLowerCase().includes(q);});}
+  cs.sort(function(a,b){var da=dday(a),db=dday(b);var ra=da.remain===null?-9999:da.remain;var rb=db.remain===null?-9999:db.remain;return ra-rb;});
+  if(S.catF!=="전체")cs=cs.filter(function(c){return catGrp(c.cat)===S.catF;});
+  return cs;
+}
+
+function buildCList(csFilt){
+  var h='<div class="card" style="margin-bottom:0">';
+  for(var i=0;i<csFilt.length;i++){var c=csFilt[i];var d=dday(c);var lv=lcol(d.level);var sc=scol(c.s);
+    var grpLabel=catGrp(c.cat);
+    h+='<div class="row">';
+    h+='<div onclick="oD('+c.id+')" style="flex:1;display:flex;align-items:center;gap:10px;min-width:0;cursor:pointer">';
+    h+='<div style="width:4px;height:42px;border-radius:2px;background:'+lv+';flex-shrink:0"></div>';
+    h+='<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:5px"><span style="font-size:14px;font-weight:700">'+es(c.n)+'</span><span style="font-size:9px;font-weight:700;color:'+sc+'">'+"★★★".slice(0,c.s)+'</span>';
+    if(d.lastRappo===false)h+='<span style="font-size:9px">⚠️</span>';
+    var gc=grpLabel==="관"?"#3B82F6":grpLabel==="정치권"?"#8B5CF6":"#E8963F";
+    h+='<span style="font-size:8px;color:'+gc+';background:'+gc+'12;padding:1px 5px;border-radius:3px;font-weight:600">'+grpLabel+'</span>';
+    h+='</div><div style="font-size:11px;color:#85ADA2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+es(c.o)+' · '+es(c.r)+'</div></div>';
+    h+='<div style="text-align:right;min-width:55px;flex-shrink:0">';
+    if(d.remain!==null){
+      if(d.remain>=0)h+='<div style="font-size:18px;font-weight:900;color:'+lv+';line-height:1">D-'+d.remain+'</div>';
+      else h+='<div style="font-size:18px;font-weight:900;color:#E25555;line-height:1">+'+Math.abs(d.remain)+'</div>';
+      var tg=TAGS[d.lastTag];h+='<div style="font-size:10px;color:#85ADA2;margin-top:2px">'+(tg?tg.ic:"")+' '+d.daysSince+'일전</div>';
+    }else h+='<div style="font-size:13px;font-weight:700;color:#B8CFC7">미연락</div>';
+    h+='</div></div>';
+    h+='<button onclick="event.stopPropagation();oChk('+c.id+')" style="padding:8px 12px;border-radius:10px;background:#2AA87615;border:none;cursor:pointer;font-size:13px;font-weight:700;color:#2AA876;flex-shrink:0">체크</button>';
+    h+='</div>';}
+  h+='</div><div style="text-align:center;padding:12px;font-size:11px;color:#85ADA2">'+csFilt.length+'명</div>';
+  return h;
+}
+
 var $=document.getElementById("app");
 function R(){if(S.tab==="home")RH();else RD();}
 
@@ -272,33 +306,14 @@ function RH(){
     h+='<button onclick="S.sf='+(S.sf===v?0:v)+';R()" style="padding:6px 10px;border-radius:8px;border:1px solid '+(on?"#1A3C34":"#C8E6DC")+';background:'+(on?"#1A3C34":"transparent")+';color:'+(on?"#fff":"#85ADA2")+';font-size:10px;font-weight:700;cursor:pointer;font-family:inherit">'+(v===0?"전체":"★★★".slice(0,v))+'</button>';}
   h+='</div></div>';
 
-  // Apply category filter to list
-  var csFilt=cs;
-  if(S.catF!=="전체"){csFilt=cs.filter(function(c){return catGrp(c.cat)===S.catF;});}
+  // Apply all filters
+  var csFilt=filterContacts();
 
-  // Contact list
+  // Contact list - rendered in separate div for search updates
   h+='<div style="padding:0 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:13px;font-weight:700">'+S.catF+' ('+csFilt.length+'명)</span><button onclick="oAC()" style="padding:6px 12px;border-radius:10px;background:#1A3C34;color:#fff;font-size:11px;font-weight:700;border:none;cursor:pointer">+ 인맥추가</button></div>';
-  h+='<div class="card" style="margin-bottom:0">';
-  for(var i=0;i<csFilt.length;i++){var c=csFilt[i];var d=dday(c);var lv=lcol(d.level);var sc=scol(c.s);
-    var grpLabel=catGrp(c.cat);
-    h+='<div class="row">';
-    h+='<div onclick="oD('+c.id+')" style="flex:1;display:flex;align-items:center;gap:10px;min-width:0;cursor:pointer">';
-    h+='<div style="width:4px;height:42px;border-radius:2px;background:'+lv+';flex-shrink:0"></div>';
-    h+='<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:5px"><span style="font-size:14px;font-weight:700">'+es(c.n)+'</span><span style="font-size:9px;font-weight:700;color:'+sc+'">'+"★★★".slice(0,c.s)+'</span>';
-    if(d.lastRappo===false)h+='<span style="font-size:9px">⚠️</span>';
-    var gc=grpLabel==="관"?"#3B82F6":grpLabel==="정치권"?"#8B5CF6":"#E8963F";
-    h+='<span style="font-size:8px;color:'+gc+';background:'+gc+'12;padding:1px 5px;border-radius:3px;font-weight:600">'+grpLabel+'</span>';
-    h+='</div><div style="font-size:11px;color:#85ADA2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+es(c.o)+' · '+es(c.r)+'</div></div>';
-    h+='<div style="text-align:right;min-width:55px;flex-shrink:0">';
-    if(d.remain!==null){
-      if(d.remain>=0)h+='<div style="font-size:18px;font-weight:900;color:'+lv+';line-height:1">D-'+d.remain+'</div>';
-      else h+='<div style="font-size:18px;font-weight:900;color:#E25555;line-height:1">+'+Math.abs(d.remain)+'</div>';
-      var tg=TAGS[d.lastTag];h+='<div style="font-size:10px;color:#85ADA2;margin-top:2px">'+(tg?tg.ic:"")+' '+d.daysSince+'일전</div>';
-    }else h+='<div style="font-size:13px;font-weight:700;color:#B8CFC7">미연락</div>';
-    h+='</div></div>';
-    h+='<button onclick="event.stopPropagation();oChk('+c.id+')" style="padding:8px 12px;border-radius:10px;background:#2AA87615;border:none;cursor:pointer;font-size:13px;font-weight:700;color:#2AA876;flex-shrink:0">체크</button>';
-    h+='</div>';}
-  h+='</div><div style="text-align:center;padding:12px;font-size:11px;color:#85ADA2">'+csFilt.length+'명</div>';
+  h+='<div id="clist">';
+  h+=buildCList(csFilt);
+  h+='</div>';
   } // end showContacts
 
   // Orders
@@ -316,7 +331,7 @@ function RH(){
   h+='</div></div>';
 
   $.innerHTML=h;
-  var si=document.getElementById("si");if(si){var _comp=false;si.addEventListener("compositionstart",function(){_comp=true;});si.addEventListener("compositionend",function(e){_comp=false;S.sr=e.target.value;R();});si.addEventListener("input",function(e){if(!_comp){S.sr=e.target.value;R();}});if(S.sr){si.focus();si.setSelectionRange(S.sr.length,S.sr.length);}}
+  var si=document.getElementById("si");if(si){si.addEventListener("input",function(e){S.sr=e.target.value;var cl=document.getElementById("clist");if(cl)cl.innerHTML=buildCList(filterContacts());});}
 }
 
 // ═══ DETAIL ═══
