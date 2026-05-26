@@ -30,7 +30,12 @@ body{background:#E8F5F0;font-family:'Pretendard','Noto Sans KR',sans-serif;-webk
 </style>
 </head>
 <body>
-<div id="app"></div>
+<script>
+// Force clear old service workers
+if("serviceWorker" in navigator){navigator.serviceWorker.getRegistrations().then(function(regs){for(var i=0;i<regs.length;i++){regs[i].unregister();}});}
+if("caches" in window){caches.keys().then(function(names){for(var i=0;i<names.length;i++){caches.delete(names[i]);}});}
+</script>
+<div id="app"><div style="padding:40px;text-align:center;color:#85ADA2">로딩 중...</div></div>
 <script>
 var TAGS={call:{l:"전화",ic:"📞"},tea:{l:"티타임",ic:"☕"},lunch:{l:"식사",ic:"🍱"},dinner:{l:"저녁/술",ic:"🍷"},etc:{l:"기타",ic:"📌"}};
 var TAGKEYS=["call","tea","lunch","dinner","etc"];
@@ -46,7 +51,7 @@ var IO=[{id:101,name:"전라유학진흥원 건립사업",client:"전라북도",
 var IC=[{id:1,n:"설상일",r:"5급 팀장",o:"전북도청",d:"도의회",cat:"gov_local",s:3},{id:2,n:"김용성",r:"5급 팀장",o:"전북도청",d:"기후변화대응팀장",cat:"gov_local",s:2},{id:3,n:"신동호",r:"5급 팀장",o:"전북도청",d:"공무원 노사팀장",cat:"gov_local",s:1},{id:4,n:"김용준",r:"5급 팀장",o:"전북도청",d:"기후위기대응 홍보팀장",cat:"gov_local",s:1},{id:5,n:"조선화",r:"5급 팀장",o:"전북도청",d:"생태자원팀장",cat:"gov_local",s:1},{id:6,n:"임정빈",r:"5급 과장",o:"전주시청",d:"광역도시기반조성",cat:"gov_local",s:3},{id:7,n:"유인환",r:"5급 과장",o:"전주시청",d:"하천과",cat:"gov_local",s:2},{id:8,n:"이상복",r:"5급 과장",o:"전주시청",d:"도시개발과",cat:"gov_local",s:2},{id:9,n:"임상빈",r:"6급 팀장",o:"전주시청",d:"개발사업팀",cat:"gov_local",s:2},{id:10,n:"류성훈",r:"6급 팀장",o:"전주시청",d:"재개발건축팀",cat:"gov_local",s:2},{id:11,n:"한민희",r:"정무보좌관",o:"전주시청",d:"",cat:"gov_local",s:1},{id:12,n:"채범수",r:"5급 과장",o:"완주군",d:"군의회, 건축",cat:"gov_local",s:2},{id:13,n:"김광준",r:"6급 팀장",o:"완주군",d:"하천기반과",cat:"gov_local",s:1},{id:14,n:"박준건",r:"6급 팀장",o:"완주군",d:"용진읍 부읍장",cat:"gov_local",s:1},{id:15,n:"정효곤",r:"4급 국장",o:"김제시",d:"도시건설국장",cat:"gov_local",s:1},{id:16,n:"박명주",r:"3급 과장",o:"국토부",d:"수도권 정책과",cat:"gov_central",s:1},{id:17,n:"박유서",r:"5급",o:"국토부",d:"남원도로관리사무소",cat:"gov_central",s:2},{id:18,n:"송명근",r:"5급",o:"국토부",d:"익산청 도로공사과",cat:"gov_central",s:2},{id:19,n:"장기욱",r:"국장",o:"해수부",d:"부산항건설사무소장",cat:"gov_central",s:1},{id:20,n:"김용수",r:"사무관",o:"해수부",d:"6월 본청 복귀",cat:"gov_central",s:2},{id:21,n:"박형배",r:"1급",o:"행안부",d:"안전예방정책실장",cat:"gov_central",s:1},{id:22,n:"서윤식",r:"부장",o:"국가철도공단",d:"총사업비 담당",cat:"gov_agency",s:3},{id:23,n:"김정석",r:"부장",o:"국가철도공단",d:"이천문경사업단 TF단장",cat:"gov_agency",s:2},{id:24,n:"김창영",r:"처장",o:"국가철도공단",d:"GTX 추진단",cat:"gov_agency",s:3},{id:25,n:"선기운",r:"본부장(이사)",o:"새만금개발공사",d:"개발본부장",cat:"gov_agency",s:3},{id:26,n:"권영호",r:"",o:"새만금개발청",d:"전 비서실장",cat:"gov_agency",s:2},{id:27,n:"김대근",r:"사장",o:"전북개발공사",d:"전 현대건설 상무",cat:"gov_agency",s:1},{id:28,n:"송재철",r:"본부장",o:"전북개발공사",d:"개발사업 총괄",cat:"gov_agency",s:1},{id:29,n:"정경훈",r:"사장",o:"GTX A",d:"전 국토부 기조실장",cat:"gov_agency",s:2},{id:30,n:"김상도",r:"고문",o:"GTX A",d:"전 항공정책국장",cat:"gov_agency",s:2},{id:31,n:"방근배",r:"감사실장",o:"한국탄소산업진흥원",d:"",cat:"gov_agency",s:1},{id:32,n:"조경민",r:"비상임이사",o:"LH",d:"감사, 회계사",cat:"gov_agency",s:2},{id:33,n:"김윤덕",r:"국토부장관",o:"정치권",d:"전주갑",cat:"politics",s:1},{id:34,n:"안호영",r:"의원",o:"정치권",d:"완주 진안 무주",cat:"politics",s:1},{id:35,n:"이명연",r:"부의장",o:"정치권",d:"전북도의회",cat:"politics",s:1},{id:36,n:"이원택",r:"의원",o:"정치권",d:"김제,부안",cat:"politics",s:1},{id:37,n:"김동환",r:"보좌관",o:"정치권",d:"국토부장관",cat:"politics",s:3},{id:38,n:"조중덕",r:"보좌관",o:"정치권",d:"조지훈 의원",cat:"politics",s:1},{id:39,n:"이해규",r:"보좌관",o:"정치권",d:"이원택 의원",cat:"politics",s:2},{id:40,n:"이장훈",r:"상무",o:"현대건설",d:"커뮤니케이션실",cat:"big_const",s:2},{id:41,n:"서경덕",r:"팀장",o:"현대건설",d:"커뮤니케이션실",cat:"big_const",s:1},{id:42,n:"임경묵",r:"책임(팀장)",o:"현대건설",d:"LH, 국토부",cat:"big_const",s:2},{id:43,n:"최중관",r:"팀장",o:"한화건설",d:"공공영업",cat:"big_const",s:2},{id:44,n:"한혁열",r:"차장",o:"한화건설",d:"공공영업",cat:"big_const",s:1},{id:45,n:"김학진",r:"차장",o:"한화건설",d:"공공영업",cat:"big_const",s:1},{id:46,n:"송준호",r:"본부장(상무)",o:"쌍용건설",d:"토목총괄",cat:"big_const",s:2},{id:47,n:"전기종",r:"팀장",o:"쌍용건설",d:"토목영업",cat:"big_const",s:1},{id:48,n:"박현철",r:"차장",o:"쌍용건설",d:"토목영업",cat:"big_const",s:2},{id:49,n:"정주현",r:"차장",o:"쌍용건설",d:"토목영업",cat:"big_const",s:1},{id:50,n:"장윤성",r:"차장",o:"쌍용건설",d:"토목영업",cat:"big_const",s:1},{id:51,n:"박규수",r:"본부장(전무)",o:"KCC건설",d:"인프라사업 총괄",cat:"big_const",s:2},{id:52,n:"정병용",r:"상무",o:"대보건설",d:"공공영업",cat:"big_const",s:3},{id:53,n:"이길수",r:"차장",o:"대보건설",d:"",cat:"big_const",s:1},{id:54,n:"양승범",r:"상무",o:"동부건설",d:"국토부,해수부",cat:"big_const",s:2},{id:55,n:"장지영",r:"본부장(전무)",o:"롯데건설",d:"토목본부",cat:"big_const",s:1},{id:56,n:"이상한",r:"상무",o:"롯데건설",d:"토목본부",cat:"big_const",s:1},{id:57,n:"윤정기",r:"팀장",o:"롯데건설",d:"토목 기술영업",cat:"big_const",s:2},{id:58,n:"김정락",r:"수석",o:"롯데건설",d:"건축 입찰파트장",cat:"big_const",s:2},{id:59,n:"박창길",r:"상무",o:"계룡건설",d:"철도공단, 국토부",cat:"big_const",s:1},{id:60,n:"이희석",r:"부장",o:"계룡건설",d:"종심제 컨소시엄",cat:"big_const",s:1},{id:61,n:"이호비",r:"팀장",o:"롯데쇼핑",d:"개발2팀",cat:"big_other",s:2},{id:62,n:"최정웅",r:"이사장",o:"전주병원",d:"",cat:"client",s:1},{id:63,n:"정희석",r:"비서실장",o:"우석대 재단",d:"",cat:"client",s:1}];
 
 var NW=new Date();NW.setHours(0,0,0,0);
-var S={tab:"home",sel:null,sf:3,sr:"",catF:"전체",c:[],l:[],p:[],o:[],showContacts:false,selWeekKey:null};
+var S={tab:"home",sel:null,sf:3,sr:"",catF:"전체",c:[],l:[],p:[],o:[],showContacts:false,selWeekKey:null,calOff:0};
 function ld(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
 function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 S.c=ld("s10c",IC);S.l=ld("s10l",[]);S.p=ld("s10p",IP);S.o=ld("s10o",IO);
@@ -110,6 +115,8 @@ function buildCList(csFilt){
 
 function getWeekKeyFor(dt){var m=getWeekMonFor(dt);return "s10w-"+m.getFullYear()+"-"+(m.getMonth()+1)+"-"+m.getDate();}
 function selectWeek(y,m,d){S.selWeekKey=getWeekKeyFor(new Date(y,m,d));R();}
+function calPrev(){S.calOff--;R();}
+function calNext(){if(S.calOff<0)S.calOff++;R();}
 
 var $=document.getElementById("app");
 function R(){if(S.tab==="home")RH();else RD();}
@@ -257,32 +264,38 @@ function RH(){
   h+='<div class="card" style="padding:14px">';
   h+='<div style="font-size:13px;font-weight:800;margin-bottom:10px">📅 네트워크 활동 (1방3콜)</div>';
 
-  // Render 2 months: previous + current
+  // Single month with arrows
+  var calY=today.getFullYear();var calM=today.getMonth()+S.calOff;
+  while(calM<0){calM+=12;calY--;}while(calM>11){calM-=12;calY++;}
+  var calFirst=new Date(calY,calM,1);var calLast=new Date(calY,calM+1,0);
+  var startDay=calFirst.getDay();if(startDay===0)startDay=7;
+  var isCurrentMonth=S.calOff===0;
+
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+  h+='<button onclick="calPrev()" style="width:32px;height:32px;border-radius:8px;border:1px solid #C8E6DC;background:#fff;cursor:pointer;font-size:16px;color:#1A3C34">◀</button>';
+  h+='<span style="font-size:13px;font-weight:700;color:#1A3C34">'+calY+'년 '+(calM+1)+'월</span>';
+  h+='<button onclick="calNext()" style="width:32px;height:32px;border-radius:8px;border:1px solid #C8E6DC;background:'+(isCurrentMonth?'#F0FAF6':'#fff')+';cursor:pointer;font-size:16px;color:'+(isCurrentMonth?'#C8E6DC':'#1A3C34')+'"'+(isCurrentMonth?' disabled':'')+'>▶</button>';
+  h+='</div>';
+
   var dls=["월","화","수","목","금","토","일"];
-  for(var mi=1;mi>=0;mi--){
-    var calY=today.getFullYear();var calM=today.getMonth()-mi;
-    if(calM<0){calM+=12;calY--;}
-    var calFirst=new Date(calY,calM,1);var calLast=new Date(calY,calM+1,0);
-    var startDay=calFirst.getDay();if(startDay===0)startDay=7;
-    h+='<div style="font-size:11px;font-weight:700;color:#4A7C6F;margin-bottom:4px;'+(mi===0?'margin-top:10px':'')+'">'+calY+'년 '+(calM+1)+'월</div>';
-    h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:8px">';
-    for(var di=0;di<7;di++)h+='<div style="text-align:center;font-size:9px;color:#85ADA2;padding:2px 0;font-weight:600">'+dls[di]+'</div>';
-    for(var di=1;di<startDay;di++)h+='<div></div>';
-    for(var day=1;day<=calLast.getDate();day++){
-      var dt=new Date(calY,calM,day);var dow=dt.getDay();var isWkday=dow>=1&&dow<=5;var isTd=dt.getTime()===today.getTime();
-      var dtKey=getWeekKeyFor(dt);var dtWk=ld(dtKey,{});var dtMon2=getWeekMonFor(dt);
-      var dtDayIdx=Math.round((dt-dtMon2)/864e5);var dtDk=DAYS[dtDayIdx];
-      var dtD=dtDk?dtWk[dtDk]:null;
-      var done2=dtD&&dtD.m&&dtD.c1&&dtD.c2&&dtD.c3;
-      var partial2=dtD&&(dtD.m||dtD.c1||dtD.c2||dtD.c3)&&!done2;
-      var isSelWeek=dtKey===selWK&&isWkday;
-      var bg2=isTd?"#1A3C34":done2?"#2AA876":partial2?"#E8963F":isSelWeek?"#C8E6DC":"transparent";
-      var clr2=isTd?"#fff":done2?"#fff":partial2?"#fff":isWkday?"#1A3C34":"#B8CFC7";
-      if(isWkday){h+='<div onclick="selectWeek('+calY+','+calM+','+day+')" style="text-align:center;padding:4px 0;border-radius:6px;background:'+bg2+';color:'+clr2+';font-size:11px;font-weight:'+(isTd||done2?'800':'500')+';cursor:pointer">'+day+'</div>';}
-      else{h+='<div style="text-align:center;padding:4px 0;color:#B8CFC7;font-size:11px">'+day+'</div>';}
-    }
-    h+='</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:8px">';
+  for(var di=0;di<7;di++)h+='<div style="text-align:center;font-size:9px;color:#85ADA2;padding:2px 0;font-weight:600">'+dls[di]+'</div>';
+  for(var di=1;di<startDay;di++)h+='<div></div>';
+  for(var day=1;day<=calLast.getDate();day++){
+    var dt=new Date(calY,calM,day);var dow=dt.getDay();var isWkday=dow>=1&&dow<=5;var isTd=dt.getTime()===today.getTime();
+    var dtKey=getWeekKeyFor(dt);var dtWk=ld(dtKey,{});var dtMon2=getWeekMonFor(dt);
+    var dtDayIdx=Math.round((dt-dtMon2)/864e5);var dtDk=DAYS[dtDayIdx];
+    var dtD=dtDk?dtWk[dtDk]:null;
+    var done2=dtD&&dtD.m&&dtD.c1&&dtD.c2&&dtD.c3;
+    var partial2=dtD&&(dtD.m||dtD.c1||dtD.c2||dtD.c3)&&!done2;
+    var isSelWeek=dtKey===selWK&&isWkday;
+    var bg2=isTd?"#1A3C34":done2?"#2AA876":partial2?"#E8963F":isSelWeek?"#C8E6DC":"transparent";
+    var clr2=isTd?"#fff":done2?"#fff":partial2?"#fff":isWkday?"#1A3C34":"#B8CFC7";
+    if(isWkday){h+='<div onclick="selectWeek('+calY+','+calM+','+day+')" style="text-align:center;padding:4px 0;border-radius:6px;background:'+bg2+';color:'+clr2+';font-size:11px;font-weight:'+(isTd||done2?'800':'500')+';cursor:pointer">'+day+'</div>';}
+    else{h+='<div style="text-align:center;padding:4px 0;color:#B8CFC7;font-size:11px">'+day+'</div>';}
   }
+  h+='</div>';
+
   h+='<div style="display:flex;gap:10px;margin-bottom:10px;justify-content:center">';
   h+='<span style="font-size:9px;color:#85ADA2"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#2AA876;vertical-align:middle;margin-right:2px"></span> 완료</span>';
   h+='<span style="font-size:9px;color:#85ADA2"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#E8963F;vertical-align:middle;margin-right:2px"></span> 일부</span>';
@@ -292,10 +305,10 @@ function RH(){
   h+='<div style="border-top:1px solid #C8E6DC;padding-top:10px">';
   var selFri=new Date(selMon.getTime()+4*864e5);
   h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
-  h+='<div style="font-size:12px;font-weight:700">'+(isThisWeek?'▶ 금주':'📌')+'  ('+(selMon.getMonth()+1)+'/'+selMon.getDate()+'~'+(selFri.getMonth()+1)+'/'+selFri.getDate()+')</div>';
+  h+='<div style="font-size:12px;font-weight:700">'+(isThisWeek?'▶ 금주':'📌')+' ('+(selMon.getMonth()+1)+'/'+selMon.getDate()+'~'+(selFri.getMonth()+1)+'/'+selFri.getDate()+')</div>';
   var wClr=selWkDone>=5?"#2AA876":selWkDone>=3?"#E8963F":"#E25555";
   h+='<div style="font-size:18px;font-weight:900;color:'+wClr+'">'+selWkDone+'<span style="font-size:11px;color:#85ADA2">/5</span></div></div>';
-  if(!isThisWeek)h+='<div style="font-size:10px;color:#85ADA2;margin-bottom:8px">날짜를 탭하면 해당 주간 수정 가능</div>';
+  if(!isThisWeek)h+='<div style="font-size:10px;color:#85ADA2;margin-bottom:8px">평일을 탭하면 해당 주간 수정 가능</div>';
   for(var i=0;i<5;i++){
     var dk=DAYS[i];var dl=DLBL[i];
     var dayDt=new Date(selMon.getTime()+i*864e5);
@@ -313,7 +326,7 @@ function RH(){
     if(dayDone)h+='<span style="font-size:11px;font-weight:700;color:#2AA876;flex-shrink:0">완료</span>';
     h+='</div>';
   }
-  if(!isThisWeek)h+='<div style="margin-top:10px;text-align:center"><button onclick="S.selWeekKey=null;R()" style="padding:8px 20px;border-radius:10px;border:1px solid #C8E6DC;background:#fff;color:#1A3C34;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">금주로 돌아가기</button></div>';
+  if(!isThisWeek)h+='<div style="margin-top:10px;text-align:center"><button onclick="S.selWeekKey=null;S.calOff=0;R()" style="padding:8px 20px;border-radius:10px;border:1px solid #C8E6DC;background:#fff;color:#1A3C34;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">금주로 돌아가기</button></div>';
   h+='</div></div>';
 
   // Collapsible contact section
@@ -402,15 +415,4 @@ function RD(){
 
   h+='<div style="padding:0 16px;margin-bottom:16px"><button onclick="oChk('+c.id+')" style="width:100%;padding:16px;border-radius:14px;background:#2AA876;border:none;color:#fff;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit">✅ 접촉 기록하기</button></div>';
 
-  h+='<div style="padding:0 16px;margin-bottom:16px"><button onclick="tE()" style="width:100%;padding:12px;border-radius:12px;border:1px solid #C8E6DC;background:#fff;color:#4A7C6F;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">✏️ 정보 수정 / 삭제</button><div id="ea"></div></div>';
-
-  h+='<div style="padding:0 16px"><div style="font-size:12px;font-weight:700;color:#4A7C6F;margin-bottom:8px">연락 이력 ('+cl.length+'건)</div>';
-  if(!cl.length){h+='<div style="text-align:center;padding:24px;background:#fff;border-radius:10px;color:#85ADA2;font-size:12px;border:1px solid #C8E6DC">기록 없음</div>';}
-  else{h+='<div style="border-radius:12px;overflow:hidden;border:1px solid #C8E6DC">';
-    for(var i=0;i<cl.length;i++){var l=cl[i];var tg=TAGS[l.tag];var dt=new Date(l.dt);
-      h+='<div style="display:flex;align-items:center;gap:8px;padding:9px 12px;background:#fff;border-bottom:1px solid #C8E6DC">';
-      h+='<span style="font-size:16px">'+(tg?tg.ic:"📌")+'</span>';
-      h+='<div style="flex:1"><div style="font-size:12px;font-weight:600">'+(tg?tg.l:"기타")+' · '+(dt.getMonth()+1)+'/'+dt.getDate()+'</div>';
-      if(l.memo)h+='<div style="font-size:11px;color:#85ADA2;margin-top:1px">'+es(l.memo)+'</div>';
-      h+='</div>';
-      h+='<span style="font-size:11px;font-weight:700;color:'+(l.rapp
+  h+='<div style="padding:0 16px;margin-bottom:16px"><button onclick="tE()" style="width:100%;padding:12px;border-radius:12px;border:1px solid #C8E6DC;background:#fff;color:#4A7C6F;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">✏️ 정보 수정 / 삭제</button><div id="ea"></d
