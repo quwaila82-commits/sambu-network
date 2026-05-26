@@ -1,5 +1,5 @@
-var CACHE = "sambu-net-v14";
-var URLS = ["/"];
+var CACHE = "sambu-net-v15";
+var URLS = ["./"];
 self.addEventListener("install", function(e) {
   e.waitUntil(caches.open(CACHE).then(function(c) { return c.addAll(URLS); }));
   self.skipWaiting();
