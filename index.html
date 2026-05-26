@@ -35,8 +35,10 @@ body{background:#E8F5F0;font-family:'Pretendard','Noto Sans KR',sans-serif;-webk
 if("serviceWorker" in navigator){navigator.serviceWorker.getRegistrations().then(function(regs){for(var i=0;i<regs.length;i++){regs[i].unregister();}});}
 if("caches" in window){caches.keys().then(function(names){for(var i=0;i<names.length;i++){caches.delete(names[i]);}});}
 </script>
-<div id="app"><div style="padding:40px;text-align:center;color:#85ADA2">로딩 중...</div></div>
+<div id="app"><div style="padding:40px;text-align:center;color:#85ADA2">로딩 중... (v16)</div></div>
 <script>
+// Version check
+document.title="삼부 v16";
 var TAGS={call:{l:"전화",ic:"📞"},tea:{l:"티타임",ic:"☕"},lunch:{l:"식사",ic:"🍱"},dinner:{l:"저녁/술",ic:"🍷"},etc:{l:"기타",ic:"📌"}};
 var TAGKEYS=["call","tea","lunch","dinner","etc"];
 var CYCLE={3:28,2:42,1:56};
@@ -415,4 +417,28 @@ function RD(){
 
   h+='<div style="padding:0 16px;margin-bottom:16px"><button onclick="oChk('+c.id+')" style="width:100%;padding:16px;border-radius:14px;background:#2AA876;border:none;color:#fff;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit">✅ 접촉 기록하기</button></div>';
 
-  h+='<div style="padding:0 16px;margin-bottom:16px"><button onclick="tE()" style="width:100%;padding:12px;border-radius:12px;border:1px solid #C8E6DC;background:#fff;color:#4A7C6F;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">✏️ 정보 수정 / 삭제</button><div id="ea"></d
+  h+='<div style="padding:0 16px;margin-bottom:16px"><button onclick="tE()" style="width:100%;padding:12px;border-radius:12px;border:1px solid #C8E6DC;background:#fff;color:#4A7C6F;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">✏️ 정보 수정 / 삭제</button><div id="ea"></div></div>';
+
+  h+='<div style="padding:0 16px"><div style="font-size:12px;font-weight:700;color:#4A7C6F;margin-bottom:8px">연락 이력 ('+cl.length+'건)</div>';
+  if(!cl.length){h+='<div style="text-align:center;padding:24px;background:#fff;border-radius:10px;color:#85ADA2;font-size:12px;border:1px solid #C8E6DC">기록 없음</div>';}
+  else{h+='<div style="border-radius:12px;overflow:hidden;border:1px solid #C8E6DC">';
+    for(var i=0;i<cl.length;i++){var l=cl[i];var tg=TAGS[l.tag];var dt=new Date(l.dt);
+      h+='<div style="display:flex;align-items:center;gap:8px;padding:9px 12px;background:#fff;border-bottom:1px solid #C8E6DC">';
+      h+='<span style="font-size:16px">'+(tg?tg.ic:"📌")+'</span>';
+      h+='<div style="flex:1"><div style="font-size:12px;font-weight:600">'+(tg?tg.l:"기타")+' · '+(dt.getMonth()+1)+'/'+dt.getDate()+'</div>';
+      if(l.memo)h+='<div style="font-size:11px;color:#85ADA2;margin-top:1px">'+es(l.memo)+'</div>';
+      h+='</div>';
+      h+='<span style="font-size:11px;font-weight:700;color:'+(l.rappo?"#2AA876":"#E8963F")+'">'+(l.rappo?"✅":"⚠️")+'</span>';
+      h+='<button onclick="dL('+l.id+')" style="background:none;border:none;color:#85ADA2;font-size:12px;cursor:pointer;padding:4px">✕</button></div>';}
+    h+='</div>';}
+
+  h+='<div style="height:70px"></div>';
+  h+='<div style="position:fixed;bottom:0;left:0;right:0;padding:12px 16px;background:linear-gradient(transparent,#E8F5F0 30%);z-index:99;display:flex;justify-content:center"><button onclick="S.tab=\'home\';R()" style="width:100%;max-width:448px;padding:14px;border-radius:14px;background:#1A3C34;color:#fff;font-size:15px;font-weight:800;border:none;cursor:pointer;font-family:inherit;box-shadow:0 -2px 12px rgba(0,0,0,0.1)">← 목록으로 돌아가기</button></div>';
+  $.innerHTML=h;
+}
+
+try{R();}catch(e){document.getElementById("app").innerHTML='<div style="padding:20px;color:red;font-size:12px">Error: '+e.message+'<br>'+e.stack+'</div>';}
+// SW disabled - app works without it
+</script>
+</body>
+</html>
